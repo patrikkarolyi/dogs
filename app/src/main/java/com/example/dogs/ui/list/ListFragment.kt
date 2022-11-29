@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.example.dogs.data.disk.model.RoomBreedData
 import com.example.dogs.databinding.FragmentListBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -28,8 +29,8 @@ class ListFragment : Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val breedObserver = Observer<List<String>> { newBreeds ->
-            Log.d("MyApp",newBreeds.joinToString())
+        val breedObserver = Observer<List<RoomBreedData>> { newBreeds ->
+            Log.d("MyApp", newBreeds.joinToString { it.id })
         }
         viewModel.breeds.observe(viewLifecycleOwner, breedObserver)
     }
