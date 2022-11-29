@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.dogs.databinding.FragmentFavoriteBinding
 
-class FavoriteFragment : Fragment(){
+class FavoriteFragment : Fragment() {
 
     private lateinit var binding: FragmentFavoriteBinding
 
@@ -19,4 +19,6 @@ class FavoriteFragment : Fragment(){
         binding = FragmentFavoriteBinding.inflate(inflater, container, false)
         return binding.root
     }
+
+
 }

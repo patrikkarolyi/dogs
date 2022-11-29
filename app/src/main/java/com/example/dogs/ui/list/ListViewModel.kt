@@ -20,15 +20,38 @@ class ListViewModel @Inject constructor(
         MutableLiveData<List<RoomBreedData>>()
     }
 
+    val isRefreshing: MutableLiveData<Boolean> by lazy {
+        MutableLiveData<Boolean>()
+    }
+
     fun getAllBreeds() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                dataSource.downloadAllBreeds()
+            withContext(Dispatchers.IO) {
                 val value = dataSource.getAllBreeds()
-                withContext(Dispatchers.Main){
-                    breeds.value = value
+                withContext(Dispatchers.Main) {
+                    if (value.isNotEmpty()) {
+                        breeds.value = value
+                    } else {
+                        refreshAllBreeds()
+                    }
                 }
             }
+        }
+    }
+
+    fun refreshAllBreeds() {
+        viewModelScope.launch {
+            isRefreshing.value = true
+            withContext(Dispatchers.IO) {
+                dataSource.downloadAllBreeds()
+                val value = dataSource.getAllBreeds()
+                withContext(Dispatchers.Main) {
+                    if (value.isNotEmpty()) {
+                        breeds.value = value
+                    }
+                }
+            }
+            isRefreshing.value = false
         }
     }
 }

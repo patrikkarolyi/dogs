@@ -18,7 +18,12 @@
     <fragment
         android:id="@+id/detailsFragment"
         android:name="com.example.dogs.ui.detail.DetailsFragment"
-        android:label="DetailsFragment" />
+        android:label="DetailsFragment" >
+        <argument
+            android:name="breedId"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
     <fragment
         android:id="@+id/favoriteFragment"
         android:name="com.example.dogs.ui.favorite.FavoriteFragment"
