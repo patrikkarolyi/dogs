@@ -27,5 +27,12 @@
     <fragment
         android:id="@+id/favoriteFragment"
         android:name="com.example.dogs.ui.favorite.FavoriteFragment"
-        android:label="FavoriteFragment" />
+        android:label="FavoriteFragment" >
+        <action
+            android:id="@+id/action_favoriteFragment_to_listFragment"
+            app:popUpTo="@id/listFragment" />
+        <action
+            android:id="@+id/action_favoriteFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
 </navigation>

@@ -34,6 +34,12 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
         binding.swipeContainer.setOnRefreshListener {
             viewModel.refreshAllBreeds()
         }
+        binding.starButton.setOnClickListener {
+            findNavController().navigate(
+                ListFragmentDirections.actionListFragmentToFavoriteFragment()
+            )
+        }
+
         viewModel.isRefreshing.observe(viewLifecycleOwner) {
             binding.swipeContainer.isRefreshing = it
         }
@@ -53,5 +59,9 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
                 breedId = id
             )
         )
+    }
+
+    override fun onItemFavoriteClicked(id: String, newIsFavorite: Boolean) {
+        viewModel.updateBreedFavoriteById(id, newIsFavorite)
     }
 }

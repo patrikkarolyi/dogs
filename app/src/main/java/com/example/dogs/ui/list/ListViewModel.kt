@@ -54,4 +54,16 @@ class ListViewModel @Inject constructor(
             isRefreshing.value = false
         }
     }
+
+    fun updateBreedFavoriteById(id: String, newIsFavorite: Boolean) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                dataSource.updateBreedFavoriteById(id,newIsFavorite)
+                val value = dataSource.getAllBreeds()
+                withContext(Dispatchers.Main) {
+                    breeds.value = value
+                }
+            }
+        }
+    }
 }

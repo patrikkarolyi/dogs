@@ -11,6 +11,10 @@ interface DogDAO {
     fun getAllBreeds(): List<RoomBreedData>
 
     @Transaction
+    @Query("SELECT * FROM breeds WHERE isFavorite=1")
+    fun getAllFavoriteBreeds(): List<RoomBreedData>
+
+    @Transaction
     @Query("SELECT * FROM breeds WHERE id=:id")
     fun getBreedById(id: String): RoomBreedData
 

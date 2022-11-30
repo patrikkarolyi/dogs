@@ -13,6 +13,10 @@ class DiskDataSource @Inject constructor(
         return dogsDAO.getAllBreeds()
     }
 
+    fun getAllFavoriteBreeds(): List<RoomBreedData> {
+        return dogsDAO.getAllFavoriteBreeds()
+    }
+
     fun getBreedById(id: String): RoomBreedData {
         return dogsDAO.getBreedById(id)
     }
