@@ -4,7 +4,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
-import com.example.dogs.data.disk.model.RoomBreedData
+import com.example.dogs.network.model.NetworkHttpError
+import com.example.dogs.network.model.NetworkIOError
+import com.example.dogs.network.model.NetworkResult
+import com.example.dogs.network.model.NetworkUnavailable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,23 +19,21 @@ class ListViewModel @Inject constructor(
     private val dataSource: DogRepository,
 ) : ViewModel() {
 
-    val breeds: MutableLiveData<List<RoomBreedData>> by lazy {
-        MutableLiveData<List<RoomBreedData>>()
-    }
-
-    val isRefreshing: MutableLiveData<Boolean> by lazy {
-        MutableLiveData<Boolean>()
+    val state: MutableLiveData<ListViewState> by lazy {
+        MutableLiveData<ListViewState>(Initial)
     }
 
     fun getAllBreeds() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val value = dataSource.getAllBreeds()
-                withContext(Dispatchers.Main) {
-                    if (value.isNotEmpty()) {
-                        breeds.value = value
-                    } else {
-                        refreshAllBreeds()
+
+                val newState = Content(dataSource.getAllBreeds())
+
+                if(newState.result.isEmpty()){
+                    refreshAllBreeds()
+                }else{
+                    withContext(Dispatchers.Main) {
+                        state.value = newState
                     }
                 }
             }
@@ -41,27 +42,35 @@ class ListViewModel @Inject constructor(
 
     fun refreshAllBreeds() {
         viewModelScope.launch {
-            isRefreshing.value = true
+
+            state.value = Refreshing
+
             withContext(Dispatchers.IO) {
-                dataSource.downloadAllBreeds()
-                val value = dataSource.getAllBreeds()
+
+                val newState =when(dataSource.downloadAllBreeds()){
+                    is NetworkHttpError -> NetworkError("HTTP error")
+                    NetworkIOError -> NetworkError("IO error")
+                    NetworkUnavailable -> NetworkError("No internet")
+                    is NetworkResult -> Content(dataSource.getAllBreeds())
+                }
+
                 withContext(Dispatchers.Main) {
-                    if (value.isNotEmpty()) {
-                        breeds.value = value
-                    }
+                    state.value = newState
                 }
             }
-            isRefreshing.value = false
         }
     }
 
     fun updateBreedFavoriteById(id: String, newIsFavorite: Boolean) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+
                 dataSource.updateBreedFavoriteById(id,newIsFavorite)
-                val value = dataSource.getAllBreeds()
+
+                val newState = Content(dataSource.getAllBreeds())
+
                 withContext(Dispatchers.Main) {
-                    breeds.value = value
+                    state.value = newState
                 }
             }
         }

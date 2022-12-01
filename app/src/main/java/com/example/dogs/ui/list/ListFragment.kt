@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.dogs.R
 import com.example.dogs.databinding.FragmentListBinding
 import com.example.dogs.ui.list.adapter.BreedAdapter
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -40,17 +43,38 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
             )
         }
 
-        viewModel.isRefreshing.observe(viewLifecycleOwner) {
-            binding.swipeContainer.isRefreshing = it
+        viewModel.state.observe(viewLifecycleOwner) {
+            render(it)
         }
-        viewModel.breeds.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+    }
+
+    private fun render(viewState: ListViewState) {
+        when (viewState) {
+            Initial -> {}
+            Refreshing -> binding.swipeContainer.isRefreshing = true
+            is Content -> {
+                binding.emptyList.isVisible = viewState.result.isEmpty()
+                adapter.submitList(viewState.result)
+                binding.swipeContainer.isRefreshing = false
+            }
+            is NetworkError -> {
+                showError(viewState.message)
+                binding.swipeContainer.isRefreshing = false
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.getAllBreeds()
+    }
+
+    private fun showError(message: String) {
+        Snackbar.make(binding.swipeContainer, message, Snackbar.LENGTH_SHORT)
+            .setAction(getString(R.string.refresh)) {
+                viewModel.refreshAllBreeds()
+            }
+            .show()
     }
 
     override fun onItemSelected(id: String) {

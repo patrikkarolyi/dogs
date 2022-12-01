@@ -4,7 +4,7 @@ import com.example.dogs.data.disk.DiskDataSource
 import com.example.dogs.data.disk.model.RoomBreedData
 import com.example.dogs.data.disk.model.RoomImageData
 import com.example.dogs.network.NetworkDataSource
-import com.example.dogs.network.model.NetworkResult
+import com.example.dogs.network.model.*
 import javax.inject.Inject
 
 class DogRepository @Inject constructor(
@@ -20,10 +20,13 @@ class DogRepository @Inject constructor(
         return diskDataSource.getAllFavoriteBreeds()
     }
 
-    suspend fun downloadAllBreeds() {
-        val networkResponse = networkDataSource.getAllBreeds()
-        if (networkResponse is NetworkResult) { //TODO error handling
-            diskDataSource.insertBreeds(mapBreedsNetworkToRoom(networkResponse.result.message))
+    suspend fun downloadAllBreeds(): NetworkResponse<AllBreedData> {
+        return when (val networkResponse = networkDataSource.getAllBreeds()) {
+            is NetworkResult -> {
+                diskDataSource.insertBreeds(mapBreedsNetworkToRoom(networkResponse.result.message))
+                networkResponse
+            }
+            else -> networkResponse
         }
     }
 
@@ -55,21 +58,25 @@ class DogRepository @Inject constructor(
         )
     }
 
-    suspend fun getImagesByBreedId(id: String): List<RoomImageData> {
+    suspend fun downloadImagesByBreedId(id: String): NetworkResponse<ImagesData> {
         val dog = diskDataSource.getBreedById(id)
-        if (diskDataSource.getImagesById(id).isEmpty()) {
-            val networkResult = networkDataSource.getAllUrlOfBreed(dog.breedName, dog.subBreedName)
-            if(networkResult is NetworkResult) { //TODO error handling
-                    diskDataSource.insertImagesObject(
-                        networkResult.result.message.map {
-                            RoomImageData(
-                                url = it,
-                                breedId = id
-                            )
-                        }
-                    )
-                }
+        return when (val networkResult = networkDataSource.getAllUrlOfBreed(dog.breedName, dog.subBreedName)) {
+            is NetworkResult -> {
+                diskDataSource.insertImagesObject(
+                    networkResult.result.message.map {
+                        RoomImageData(
+                            url = it,
+                            breedId = id
+                        )
+                    }
+                )
+                networkResult
             }
+            else -> networkResult
+        }
+    }
+
+    fun getImagesByBreedId(id: String): List<RoomImageData> {
         return diskDataSource.getImagesById(id)
     }
 

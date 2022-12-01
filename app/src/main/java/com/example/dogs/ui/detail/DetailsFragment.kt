@@ -4,17 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
+import com.example.dogs.R
 import com.example.dogs.databinding.FragmentDetailsBinding
 import com.example.dogs.ui.detail.adapter.ImageAdapter
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DetailsFragment : Fragment(){
+class DetailsFragment : Fragment() {
 
     private lateinit var binding: FragmentDetailsBinding
     private val viewModel: DetailsViewModel by viewModels()
@@ -34,19 +35,40 @@ class DetailsFragment : Fragment(){
         super.onViewCreated(view, savedInstanceState)
         binding.rv.adapter = adapter
 
-        viewModel.isRefreshing.observe(viewLifecycleOwner) {
-            binding.swipeContainer.isRefreshing = it
-        }
-        viewModel.images.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        viewModel.state.observe(viewLifecycleOwner) {
+            render(it)
         }
         binding.swipeContainer.setOnRefreshListener {
-            viewModel.getImageUrls(args.breedId)
+            viewModel.refreshImageUrls(args.breedId)
         }
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.getImageUrls(args.breedId)
+    }
+
+    private fun render(viewState: DetailsViewState) {
+        when (viewState) {
+            Initial -> {}
+            Refreshing -> binding.swipeContainer.isRefreshing = true
+            is Content -> {
+                binding.emptyList.isVisible = viewState.result.isEmpty()
+                adapter.submitList(viewState.result)
+                binding.swipeContainer.isRefreshing = false
+            }
+            is NetworkError -> {
+                showError(viewState.message)
+                binding.swipeContainer.isRefreshing = false
+            }
+        }
+    }
+
+    private fun showError(message: String) {
+        Snackbar.make(binding.swipeContainer, message, Snackbar.LENGTH_SHORT)
+            .setAction(getString(R.string.refresh)) {
+                viewModel.refreshImageUrls(args.breedId)
+            }
+            .show()
     }
 }
