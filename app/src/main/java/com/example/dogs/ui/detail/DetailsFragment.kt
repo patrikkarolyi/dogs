@@ -15,11 +15,11 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DetailsFragment : Fragment() {
+class DetailsFragment : Fragment(), ImageAdapter.Listener {
 
     private lateinit var binding: FragmentDetailsBinding
     private val viewModel: DetailsViewModel by viewModels()
-    private val adapter = ImageAdapter()
+    private val adapter = ImageAdapter(this)
     private val args: DetailsFragmentArgs by navArgs()
 
     override fun onCreateView(
@@ -70,5 +70,9 @@ class DetailsFragment : Fragment() {
                 viewModel.refreshImageUrls(args.breedId)
             }
             .show()
+    }
+
+    override fun onItemFavoriteClicked(id: String, newIsFavorite: Boolean) {
+        viewModel.updateImageFavoriteById(args.breedId, id, newIsFavorite)
     }
 }

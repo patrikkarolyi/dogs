@@ -1,4 +1,4 @@
-package com.example.dogs.ui.favorite
+package com.example.dogs.ui.favoriteDogs
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,16 +9,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.dogs.R
-import com.example.dogs.databinding.FragmentFavoriteBinding
+import com.example.dogs.databinding.FragmentFavoriteDogsBinding
 import com.example.dogs.ui.list.adapter.BreedAdapter
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class FavoriteFragment : Fragment(), BreedAdapter.Listener {
+class FavoriteDogsFragment : Fragment(), BreedAdapter.Listener {
 
-    private lateinit var binding: FragmentFavoriteBinding
-    private val viewModel: FavoriteViewModel by viewModels()
+    private lateinit var binding: FragmentFavoriteDogsBinding
+    private val viewModel: FavoriteDogsViewModel by viewModels()
     private val adapter = BreedAdapter(this)
 
     override fun onCreateView(
@@ -26,20 +25,22 @@ class FavoriteFragment : Fragment(), BreedAdapter.Listener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentFavoriteBinding.inflate(inflater, container, false)
+        binding = FragmentFavoriteDogsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.rv.adapter = adapter
-
-        binding.swipeContainer.setOnRefreshListener {
-            viewModel.refreshAllBreeds()
-        }
-        binding.starButton.setOnClickListener {
+        binding.toolbar.starImagesButton.setOnClickListener {
             findNavController().navigate(
-                FavoriteFragmentDirections.actionFavoriteFragmentToListFragment()
+                FavoriteDogsFragmentDirections.toFavoriteImages()
+            )
+        }
+        binding.toolbar.starBreedsImage.setImageResource(R.drawable.ic_star_empty)
+        binding.toolbar.starBreedsButton.setOnClickListener {
+            findNavController().navigate(
+                FavoriteDogsFragmentDirections.toList()
             )
         }
 
@@ -56,30 +57,18 @@ class FavoriteFragment : Fragment(), BreedAdapter.Listener {
     private fun render(viewState: FavoriteViewState) {
         when (viewState) {
             Initial -> {}
-            Refreshing -> binding.swipeContainer.isRefreshing = true
+            Refreshing -> {}
             is Content -> {
                 binding.emptyList.isVisible = viewState.result.isEmpty()
                 adapter.submitList(viewState.result)
-                binding.swipeContainer.isRefreshing = false
             }
-            is NetworkError -> {
-                showError(viewState.message)
-                binding.swipeContainer.isRefreshing = false
-            }
+            is NetworkError -> {}
         }
-    }
-
-    private fun showError(message: String) {
-        Snackbar.make(binding.swipeContainer, message, Snackbar.LENGTH_SHORT)
-            .setAction(getString(R.string.refresh)) {
-                viewModel.refreshAllBreeds()
-            }
-            .show()
     }
 
     override fun onItemSelected(id: String) {
         findNavController().navigate(
-            FavoriteFragmentDirections.actionFavoriteFragmentToDetailsFragment(
+            FavoriteDogsFragmentDirections.toDetails(
                 breedId = id
             )
         )

@@ -66,7 +66,8 @@ class DogRepository @Inject constructor(
                     networkResult.result.message.map {
                         RoomImageData(
                             url = it,
-                            breedId = id
+                            breedId = id,
+                            isFavorite = false
                         )
                     }
                 )
@@ -76,8 +77,8 @@ class DogRepository @Inject constructor(
         }
     }
 
-    fun getImagesByBreedId(id: String): List<RoomImageData> {
-        return diskDataSource.getImagesById(id)
+    fun getImagesByBreedId(breedId: String): List<RoomImageData> {
+        return diskDataSource.getImagesByBreedId(breedId)
     }
 
     fun updateBreedFavoriteById(id: String, newIsFavorite: Boolean) {
@@ -87,6 +88,21 @@ class DogRepository @Inject constructor(
                 id = breedItem.id,
                 breedName = breedItem.breedName,
                 subBreedName = breedItem.subBreedName,
+                isFavorite = newIsFavorite
+            )
+        )
+    }
+
+    fun getAllFavoriteImages(): List<RoomImageData> {
+        return diskDataSource.getAllFavoriteImages()
+    }
+
+    fun updateImageFavoriteById(id: String, newIsFavorite: Boolean) {
+        val imageItem = diskDataSource.getImageById(id)
+        diskDataSource.updateBreed(
+            RoomImageData(
+                url = imageItem.url,
+                breedId = imageItem.breedId,
                 isFavorite = newIsFavorite
             )
         )

@@ -29,11 +29,23 @@ class DiskDataSource @Inject constructor(
         return dogsDAO.updateBreed(data)
     }
 
-    fun getImagesById(id: String): List<RoomImageData> {
-        return imageDAO.getImagesById(id)
+    fun getAllFavoriteImages(): List<RoomImageData> {
+        return imageDAO.getAllFavoriteImages()
+    }
+
+    fun getImagesByBreedId(breedId: String): List<RoomImageData> {
+        return imageDAO.getImagesByBreedId(breedId)
+    }
+
+    fun getImageById(id: String): RoomImageData {
+        return imageDAO.getImageById(id)
     }
 
     fun insertImagesObject(images: List<RoomImageData>){
-        return imageDAO.insertImagesObject(images)
+        return imageDAO.insertImages(images)
+    }
+
+    fun updateBreed(data: RoomImageData) {
+        return imageDAO.updateImage(data)
     }
 }

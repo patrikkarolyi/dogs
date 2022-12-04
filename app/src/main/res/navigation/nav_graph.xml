@@ -9,11 +9,14 @@
         android:name="com.example.dogs.ui.list.ListFragment"
         android:label="ListFragment" >
         <action
-            android:id="@+id/action_listFragment_to_detailsFragment"
+            android:id="@+id/toDetails"
             app:destination="@id/detailsFragment" />
         <action
-            android:id="@+id/action_listFragment_to_favoriteFragment"
+            android:id="@+id/toFavoriteDogs"
             app:destination="@id/favoriteFragment" />
+        <action
+            android:id="@+id/toFavoriteImages"
+            app:destination="@id/favoriteImagesFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailsFragment"
@@ -26,13 +29,20 @@
     </fragment>
     <fragment
         android:id="@+id/favoriteFragment"
-        android:name="com.example.dogs.ui.favorite.FavoriteFragment"
+        android:name="com.example.dogs.ui.favoriteDogs.FavoriteDogsFragment"
         android:label="FavoriteFragment" >
         <action
-            android:id="@+id/action_favoriteFragment_to_listFragment"
+            android:id="@+id/toList"
             app:popUpTo="@id/listFragment" />
         <action
-            android:id="@+id/action_favoriteFragment_to_detailsFragment"
+            android:id="@+id/toDetails"
             app:destination="@id/detailsFragment" />
+        <action
+            android:id="@+id/toFavoriteImages"
+            app:destination="@id/favoriteImagesFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/favoriteImagesFragment"
+        android:name="com.example.dogs.ui.favoriteImages.FavoriteImagesFragment"
+        android:label="FavoriteImagesFragment" />
 </navigation>

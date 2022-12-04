@@ -1,4 +1,4 @@
-package com.example.dogs.ui.favorite
+package com.example.dogs.ui.favoriteDogs
 
 import com.example.dogs.data.disk.model.RoomBreedData
 

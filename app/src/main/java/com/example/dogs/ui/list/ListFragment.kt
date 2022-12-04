@@ -37,9 +37,15 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
         binding.swipeContainer.setOnRefreshListener {
             viewModel.refreshAllBreeds()
         }
-        binding.starButton.setOnClickListener {
+        binding.toolbar.starBreedsButton.setOnClickListener {
             findNavController().navigate(
-                ListFragmentDirections.actionListFragmentToFavoriteFragment()
+                ListFragmentDirections.toFavoriteDogs()
+            )
+        }
+
+        binding.toolbar.starImagesButton.setOnClickListener {
+            findNavController().navigate(
+                ListFragmentDirections.toFavoriteImages()
             )
         }
 
@@ -79,7 +85,7 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
 
     override fun onItemSelected(id: String) {
         findNavController().navigate(
-            ListFragmentDirections.actionListFragmentToDetailsFragment(
+            ListFragmentDirections.toDetails(
                 breedId = id
             )
         )

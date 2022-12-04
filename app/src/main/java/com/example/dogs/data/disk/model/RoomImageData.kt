@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class RoomImageData (
     @PrimaryKey
     val url: String,
-    val breedId: String
+    val breedId: String,
+    val isFavorite: Boolean
 )

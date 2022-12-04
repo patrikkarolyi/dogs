@@ -7,15 +7,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.dogs.R
+import com.example.dogs.data.disk.model.RoomImageData
 import com.example.dogs.databinding.ListItemImageBinding
 
-class ImageAdapter : ListAdapter<String, ImageAdapter.ViewHolder>(
+class ImageAdapter(val listener: Listener) : ListAdapter<RoomImageData, ImageAdapter.ViewHolder>(
     ImageDiffUtil()
 ) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding =
-            ListItemImageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ListItemImageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
@@ -25,13 +25,23 @@ class ImageAdapter : ListAdapter<String, ImageAdapter.ViewHolder>(
 
     inner class ViewHolder(private val binding: ListItemImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(context: Context, item: String) {
+        fun bind(context: Context, item: RoomImageData) {
+
+            binding.starButton.setImageResource( if(item.isFavorite) R.drawable.ic_star else R.drawable.ic_star_empty)
+            binding.starButton.setOnClickListener {
+                listener.onItemFavoriteClicked(item.url, !item.isFavorite)
+            }
+
             Glide
                 .with(context)
-                .load(item)
+                .load(item.url)
                 .centerCrop()
                 .placeholder(R.drawable.place_holder)
                 .into(binding.iv)
         }
+    }
+
+    interface Listener {
+        fun onItemFavoriteClicked(id: String, newIsFavorite: Boolean)
     }
 }

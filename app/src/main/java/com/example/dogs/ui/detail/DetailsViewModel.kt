@@ -27,7 +27,7 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
 
-                val newState = Content(dataSource.getImagesByBreedId(id).map { it.url })
+                val newState = Content(dataSource.getImagesByBreedId(id))
 
                 if (newState.result.isEmpty()) {
                     refreshImageUrls(id)
@@ -51,8 +51,23 @@ class DetailsViewModel @Inject constructor(
                     is NetworkHttpError -> NetworkError("HTTP error")
                     NetworkIOError -> NetworkError("IO error")
                     NetworkUnavailable -> NetworkError("No internet")
-                    is NetworkResult -> Content(dataSource.getImagesByBreedId(id).map { it.url })
+                    is NetworkResult -> Content(dataSource.getImagesByBreedId(id))
                 }
+
+                withContext(Dispatchers.Main) {
+                    state.value = newState
+                }
+            }
+        }
+    }
+
+    fun updateImageFavoriteById(breedId: String, url: String, newIsFavorite: Boolean) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+
+                dataSource.updateImageFavoriteById(url,newIsFavorite)
+
+                val newState = Content(dataSource.getImagesByBreedId(breedId))
 
                 withContext(Dispatchers.Main) {
                     state.value = newState

@@ -1,13 +1,9 @@
-package com.example.dogs.ui.favorite
+package com.example.dogs.ui.favoriteDogs
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
-import com.example.dogs.network.model.NetworkHttpError
-import com.example.dogs.network.model.NetworkIOError
-import com.example.dogs.network.model.NetworkResult
-import com.example.dogs.network.model.NetworkUnavailable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,7 +11,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class FavoriteViewModel @Inject constructor(
+class FavoriteDogsViewModel @Inject constructor(
     private val dataSource: DogRepository,
 ) : ViewModel() {
 
@@ -29,29 +25,6 @@ class FavoriteViewModel @Inject constructor(
 
                 val newState = Content(dataSource.getAllFavoriteBreeds())
 
-                if(newState.result.isEmpty()){
-                    refreshAllBreeds()
-                }else{
-                    withContext(Dispatchers.Main) {
-                        state.value = newState
-                    }
-                }
-            }
-        }
-    }
-
-    fun refreshAllBreeds() {
-        viewModelScope.launch {
-
-            state.value = Refreshing
-
-            withContext(Dispatchers.IO) {
-                val newState = when (dataSource.downloadAllBreeds()) {
-                    is NetworkHttpError -> NetworkError("HTTP error")
-                    NetworkIOError -> NetworkError("IO error")
-                    NetworkUnavailable -> NetworkError("No internet")
-                    is NetworkResult -> Content(dataSource.getAllFavoriteBreeds())
-                }
 
                 withContext(Dispatchers.Main) {
                     state.value = newState
