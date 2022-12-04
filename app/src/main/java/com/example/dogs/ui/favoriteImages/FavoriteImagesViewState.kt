@@ -10,4 +10,4 @@ object Refreshing : FavoriteImagesViewState()
 
 class NetworkError(val message: String) : FavoriteImagesViewState()
 
-class Content(val result: List<RoomImageData>) : FavoriteImagesViewState()
+class Content(val result: List<RoomImageData>, val clearEditText: Boolean = true) : FavoriteImagesViewState()

@@ -29,9 +29,9 @@ class ListViewModel @Inject constructor(
 
                 val newState = Content(dataSource.getAllBreeds())
 
-                if(newState.result.isEmpty()){
+                if (newState.result.isEmpty()) {
                     refreshAllBreeds()
-                }else{
+                } else {
                     withContext(Dispatchers.Main) {
                         state.value = newState
                     }
@@ -47,7 +47,7 @@ class ListViewModel @Inject constructor(
 
             withContext(Dispatchers.IO) {
 
-                val newState =when(dataSource.downloadAllBreeds()){
+                val newState = when (dataSource.downloadAllBreeds()) {
                     is NetworkHttpError -> NetworkError("HTTP error")
                     NetworkIOError -> NetworkError("IO error")
                     NetworkUnavailable -> NetworkError("No internet")
@@ -65,9 +65,28 @@ class ListViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
 
-                dataSource.updateBreedFavoriteById(id,newIsFavorite)
+                dataSource.updateBreedFavoriteById(id, newIsFavorite)
 
                 val newState = Content(dataSource.getAllBreeds())
+
+                withContext(Dispatchers.Main) {
+                    state.value = newState
+                }
+            }
+        }
+    }
+
+    fun updateFilters(filter: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+
+                val newState = Content(
+                    result = dataSource.getAllBreeds()
+                        .asSequence()
+                        .filter {  it.id.contains(filter) } // blank text is always contained
+                        .toList(),
+                    clearEditText = false
+                )
 
                 withContext(Dispatchers.Main) {
                     state.value = newState

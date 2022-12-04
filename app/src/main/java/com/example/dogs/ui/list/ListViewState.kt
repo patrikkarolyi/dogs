@@ -10,4 +10,4 @@ object Refreshing : ListViewState()
 
 class NetworkError(val message: String) : ListViewState()
 
-class Content(val result: List<RoomBreedData>) : ListViewState()
+class Content(val result: List<RoomBreedData>, val clearEditText: Boolean = true ) : ListViewState()

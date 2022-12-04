@@ -32,6 +32,11 @@ class ImageAdapter(val listener: Listener) : ListAdapter<RoomImageData, ImageAda
                 listener.onItemFavoriteClicked(item.url, !item.isFavorite)
             }
 
+            binding.tv.text = item.breedId
+            binding.tv.setOnClickListener {
+                listener.onItemTextClicked(item.breedId)
+            }
+
             Glide
                 .with(context)
                 .load(item.url)
@@ -43,5 +48,6 @@ class ImageAdapter(val listener: Listener) : ListAdapter<RoomImageData, ImageAda
 
     interface Listener {
         fun onItemFavoriteClicked(id: String, newIsFavorite: Boolean)
+        fun onItemTextClicked(breedId: String)
     }
 }

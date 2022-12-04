@@ -75,4 +75,6 @@ class DetailsFragment : Fragment(), ImageAdapter.Listener {
     override fun onItemFavoriteClicked(id: String, newIsFavorite: Boolean) {
         viewModel.updateImageFavoriteById(args.breedId, id, newIsFavorite)
     }
+
+    override fun onItemTextClicked(breedId: String) {}
 }

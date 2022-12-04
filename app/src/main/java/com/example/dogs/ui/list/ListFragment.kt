@@ -1,9 +1,12 @@
 package com.example.dogs.ui.list
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -32,8 +35,8 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.rv.adapter = adapter
 
+        binding.rv.adapter = adapter
         binding.swipeContainer.setOnRefreshListener {
             viewModel.refreshAllBreeds()
         }
@@ -42,11 +45,19 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
                 ListFragmentDirections.toFavoriteDogs()
             )
         }
-
         binding.toolbar.starImagesButton.setOnClickListener {
             findNavController().navigate(
                 ListFragmentDirections.toFavoriteImages()
             )
+        }
+        binding.filterEt.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                viewModel.updateFilters(binding.filterEt.text.toString())
+                (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
+                    view.windowToken, 0
+                )
+                true
+            } else false
         }
 
         viewModel.state.observe(viewLifecycleOwner) {
@@ -62,6 +73,9 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
                 binding.emptyList.isVisible = viewState.result.isEmpty()
                 adapter.submitList(viewState.result)
                 binding.swipeContainer.isRefreshing = false
+                if(viewState.clearEditText){
+                    binding.filterEt.text?.clear()
+                }
             }
             is NetworkError -> {
                 showError(viewState.message)

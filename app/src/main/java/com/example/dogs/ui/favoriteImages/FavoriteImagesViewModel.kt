@@ -46,4 +46,23 @@ class FavoriteImagesViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateFilters(filter: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+
+                val newState = Content(
+                    result = dataSource.getAllFavoriteImages()
+                        .asSequence()
+                        .filter { it.breedId.contains(filter) } // blank text is always contained
+                        .toList(),
+                    clearEditText = false
+                )
+
+                withContext(Dispatchers.Main) {
+                    state.value = newState
+                }
+            }
+        }
+    }
 }
