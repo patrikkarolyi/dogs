@@ -1,6 +1,8 @@
 package com.example.dogs.ui.list
 
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
@@ -8,6 +10,7 @@ import com.example.dogs.network.model.NetworkHttpError
 import com.example.dogs.network.model.NetworkIOError
 import com.example.dogs.network.model.NetworkResult
 import com.example.dogs.network.model.NetworkUnavailable
+import com.example.dogs.ui.list.ListViewState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,9 +22,8 @@ class ListViewModel @Inject constructor(
     private val dataSource: DogRepository,
 ) : ViewModel() {
 
-    val state: MutableLiveData<ListViewState> by lazy {
-        MutableLiveData<ListViewState>(Initial)
-    }
+    var state by mutableStateOf<ListViewState>(Initial)
+        private set
 
     fun getAllBreeds() {
         viewModelScope.launch {
@@ -33,7 +35,7 @@ class ListViewModel @Inject constructor(
                     refreshAllBreeds()
                 } else {
                     withContext(Dispatchers.Main) {
-                        state.value = newState
+                        state = newState
                     }
                 }
             }
@@ -43,7 +45,7 @@ class ListViewModel @Inject constructor(
     fun refreshAllBreeds() {
         viewModelScope.launch {
 
-            state.value = Refreshing
+            state = Refreshing
 
             withContext(Dispatchers.IO) {
 
@@ -55,7 +57,7 @@ class ListViewModel @Inject constructor(
                 }
 
                 withContext(Dispatchers.Main) {
-                    state.value = newState
+                    state = newState
                 }
             }
         }
@@ -70,7 +72,7 @@ class ListViewModel @Inject constructor(
                 val newState = Content(dataSource.getAllBreeds())
 
                 withContext(Dispatchers.Main) {
-                    state.value = newState
+                    state = newState
                 }
             }
         }
@@ -83,13 +85,13 @@ class ListViewModel @Inject constructor(
                 val newState = Content(
                     result = dataSource.getAllBreeds()
                         .asSequence()
-                        .filter {  it.id.contains(filter) } // blank text is always contained
+                        .filter { it.id.contains(filter) } // blank text is always contained
                         .toList(),
                     clearEditText = false
                 )
 
                 withContext(Dispatchers.Main) {
-                    state.value = newState
+                    state = newState
                 }
             }
         }
