@@ -6,13 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
-import com.example.dogs.network.model.NetworkHttpError
 import com.example.dogs.network.model.NetworkIOError
-import com.example.dogs.network.model.NetworkResult
+import com.example.dogs.network.model.NetworkNoResult
 import com.example.dogs.network.model.NetworkUnavailable
-import com.example.dogs.ui.list.ListViewState.*
+import com.example.dogs.ui.list.ListViewState.Content
+import com.example.dogs.ui.list.ListViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -22,78 +23,85 @@ class ListViewModel @Inject constructor(
     private val dataSource: DogRepository,
 ) : ViewModel() {
 
-    var state by mutableStateOf<ListViewState>(Initial)
+    var uiState by mutableStateOf<ListViewState>(Initial)
+        private set
+
+    var isRefreshing by mutableStateOf(false)
+        private set
+
+    var isSearching by mutableStateOf(false)
+        private set
+
+    var errorMessage by mutableStateOf("")
+        private set
+
+    var navDirection = MutableSharedFlow<NavDirection>()
         private set
 
     fun getAllBreeds() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-
-                val newState = Content(dataSource.getAllBreeds())
-
-                if (newState.result.isEmpty()) {
-                    refreshAllBreeds()
-                } else {
-                    withContext(Dispatchers.Main) {
-                        state = newState
-                    }
-                }
+            uiState = withContext(Dispatchers.IO) {
+                Content(dataSource.getAllBreeds())
             }
         }
     }
 
     fun refreshAllBreeds() {
         viewModelScope.launch {
-
-            state = Refreshing
-
-            withContext(Dispatchers.IO) {
-
-                val newState = when (dataSource.downloadAllBreeds()) {
-                    is NetworkHttpError -> NetworkError("HTTP error")
-                    NetworkIOError -> NetworkError("IO error")
-                    NetworkUnavailable -> NetworkError("No internet")
-                    is NetworkResult -> Content(dataSource.getAllBreeds())
+            isRefreshing = true
+            uiState = withContext(Dispatchers.IO) {
+                //másik szálon?
+                when (dataSource.downloadAllBreeds()) {
+                    is NetworkNoResult -> errorMessage = "HTTP error"
+                    NetworkIOError -> errorMessage = "IO error"
+                    NetworkUnavailable -> errorMessage = "No internet"
+                    else -> {}
                 }
-
-                withContext(Dispatchers.Main) {
-                    state = newState
-                }
+                Content(dataSource.getAllBreeds())
             }
+            isRefreshing = false
         }
     }
 
     fun updateBreedFavoriteById(id: String, newIsFavorite: Boolean) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-
+            uiState = withContext(Dispatchers.IO) {
                 dataSource.updateBreedFavoriteById(id, newIsFavorite)
-
-                val newState = Content(dataSource.getAllBreeds())
-
-                withContext(Dispatchers.Main) {
-                    state = newState
-                }
+                Content(dataSource.getAllBreeds())
             }
         }
     }
 
     fun updateFilters(filter: String) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-
-                val newState = Content(
+            uiState = withContext(Dispatchers.IO) {
+                Content(
                     result = dataSource.getAllBreeds()
                         .asSequence()
                         .filter { it.id.contains(filter) } // blank text is always contained
                         .toList(),
-                    clearEditText = false
                 )
-
-                withContext(Dispatchers.Main) {
-                    state = newState
-                }
             }
         }
     }
+
+    fun showError() {
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                errorMessage = "Custom error"
+            }
+        }
+    }
+
+    fun navigateTo(navTo: NavDirection) {
+        viewModelScope.launch {
+            navDirection.emit(navTo)
+        }
+    }
+}
+
+enum class NavDirection {
+    ToSearch,
+    ToFavoriteDogs,
+    ToFavoriteImages
 }
