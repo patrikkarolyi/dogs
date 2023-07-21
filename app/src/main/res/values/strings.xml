@@ -3,4 +3,8 @@
     <string name="empty_list">List is empty.</string>
     <string name="refresh">Refresh</string>
     <string name="filter_input_hint">Search for name…</string>
+    <string name="cancel">Cancel</string>
+    <string name="dogs">Dogs</string>
+    <string name="images">Images</string>
+    <string name="favorites">Favorites</string>
 </resources>

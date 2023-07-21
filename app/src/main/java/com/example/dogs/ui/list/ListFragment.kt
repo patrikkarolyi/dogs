@@ -10,10 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.dogs.ui.list.NavDirection.ToFavoriteDogs
-import com.example.dogs.ui.list.NavDirection.ToFavoriteImages
-import com.example.dogs.ui.list.NavDirection.ToSearch
+import com.example.dogs.navigation.NavDirection
 import com.example.dogs.ui.list.adapter.BreedAdapter
+import com.example.dogs.ui.theme.DogsTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -31,7 +30,9 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                ListScreen(onItemClicked = { id -> onItemSelected(id) })
+                DogsTheme {
+                    ListScreen(onItemClicked = { id -> onItemSelected(id) })
+                }
             }
         }
     }
@@ -39,9 +40,8 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
     private fun navigateTo(navDirection: NavDirection) {
         findNavController().navigate(
             when (navDirection) {
-                ToSearch -> ListFragmentDirections.toFavoriteDogs()
-                ToFavoriteDogs -> ListFragmentDirections.toFavoriteDogs()
-                ToFavoriteImages -> ListFragmentDirections.toFavoriteImages()
+                NavDirection.ToFavoriteDogs -> ListFragmentDirections.toFavoriteDogs()
+                NavDirection.ToFavoriteImages -> ListFragmentDirections.toFavoriteImages()
             }
         )
     }

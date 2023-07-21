@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dogs.R
-import com.example.dogs.ui.list.NavDirection
+import com.example.dogs.navigation.NavDirection
 
 
 @OptIn(ExperimentalMaterial3Api::class)

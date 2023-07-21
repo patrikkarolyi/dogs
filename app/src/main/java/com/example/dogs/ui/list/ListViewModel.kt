@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
+import com.example.dogs.navigation.NavDirection
 import com.example.dogs.network.model.NetworkIOError
 import com.example.dogs.network.model.NetworkNoResult
 import com.example.dogs.network.model.NetworkUnavailable
@@ -29,10 +30,7 @@ class ListViewModel @Inject constructor(
     var isRefreshing by mutableStateOf(false)
         private set
 
-    var isSearching by mutableStateOf(false)
-        private set
-
-    var errorMessage by mutableStateOf("")
+    var errorMessage = MutableSharedFlow<String>()
         private set
 
     var navDirection = MutableSharedFlow<NavDirection>()
@@ -50,11 +48,10 @@ class ListViewModel @Inject constructor(
         viewModelScope.launch {
             isRefreshing = true
             uiState = withContext(Dispatchers.IO) {
-                //másik szálon?
                 when (dataSource.downloadAllBreeds()) {
-                    is NetworkNoResult -> errorMessage = "HTTP error"
-                    NetworkIOError -> errorMessage = "IO error"
-                    NetworkUnavailable -> errorMessage = "No internet"
+                    is NetworkNoResult -> errorMessage.emit("HTTP error")
+                    NetworkIOError -> errorMessage.emit("IO error")
+                    NetworkUnavailable -> errorMessage.emit("No internet")
                     else -> {}
                 }
                 Content(dataSource.getAllBreeds())
@@ -87,9 +84,7 @@ class ListViewModel @Inject constructor(
 
     fun showError() {
         viewModelScope.launch {
-            withContext(Dispatchers.Main) {
-                errorMessage = "Custom error"
-            }
+            errorMessage.emit("Custom error")
         }
     }
 
@@ -98,10 +93,4 @@ class ListViewModel @Inject constructor(
             navDirection.emit(navTo)
         }
     }
-}
-
-enum class NavDirection {
-    ToSearch,
-    ToFavoriteDogs,
-    ToFavoriteImages
 }

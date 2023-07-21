@@ -6,12 +6,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -51,7 +51,7 @@ fun MySearchToolbar(
         label = {
             Text(
                 text = stringResource(R.string.filter_input_hint),
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colors.onPrimary
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
@@ -62,7 +62,7 @@ fun MySearchToolbar(
             Icon(
                 imageVector = Icons.Rounded.Search,
                 contentDescription = "Search",
-                tint = MaterialTheme.colorScheme.secondary,
+                tint = MaterialTheme.colors.secondary,
             )
         },
         trailingIcon = {
@@ -76,7 +76,7 @@ fun MySearchToolbar(
                     Icon(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = "Close",
-                        tint = MaterialTheme.colorScheme.secondary,
+                        tint = MaterialTheme.colors.secondary,
                     )
                 }
             }
@@ -89,7 +89,7 @@ fun MySearchToolbar(
         modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .border(4.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(15.dp))
+            .border(4.dp, MaterialTheme.colors.primary, RoundedCornerShape(15.dp))
             .focusRequester(focusRequester)
             .onKeyEvent {
                 if (it.key == Key.Enter) {
