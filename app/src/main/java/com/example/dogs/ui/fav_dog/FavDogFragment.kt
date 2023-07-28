@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.dogs.ui.theme.DogsTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,11 +27,16 @@ class FavDogFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 DogsTheme {
-                    FavoriteDogsScreen(
-                        onItemClicked = { id -> onItemSelected(id) },
-                        onItemFavoriteClicked = { id, isFavorite ->
-                            onItemFavoriteClicked( id, isFavorite )
+                    FavDogScreen(
+                        onItemClicked = { id ->
+                            onItemSelected(id)
                         },
+                        onItemFavoriteClicked = { id, isFavorite ->
+                            onItemFavoriteClicked(id, isFavorite)
+                        },
+                        onNavBack = {
+                            findNavController().popBackStack()
+                        }
                     )
                 }
             }

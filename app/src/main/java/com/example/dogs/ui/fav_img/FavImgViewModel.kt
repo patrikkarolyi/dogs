@@ -39,17 +39,4 @@ class FavImgViewModel @Inject constructor(
             }
         }
     }
-
-    fun updateFilters(filter: String) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                Content(
-                    result = dataSource.getAllFavoriteImages()
-                        .asSequence()
-                        .filter { it.breedId.contains(filter) }
-                        .toList()
-                )
-            }
-        }
-    }
 }

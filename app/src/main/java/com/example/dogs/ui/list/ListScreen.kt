@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
@@ -23,8 +24,6 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -139,19 +138,21 @@ fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
         properties = DialogProperties(usePlatformDefaultWidth = false),
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.surface),
         onDismissRequest = { onDismiss() },
         title = {
             Text(
                 text = stringResource(R.string.favorites),
                 style = MaterialTheme.typography.h5,
-                color = MaterialTheme.colors.onBackground
+                color = MaterialTheme.colors.onSurface
             )
         },
         text = {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
 
             ) {
                 IconButton(
@@ -159,6 +160,7 @@ fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
                         .fillMaxWidth()
                         .background(MaterialTheme.colors.primary),
                     onClick = {
+                        onDismiss()
                         viewModel.navigateTo(navTo = NavDirection.ToFavoriteDogs)
                     }
                 ) {
@@ -167,12 +169,14 @@ fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
                         text = stringResource(R.string.dogs)
                     )
                 }
-                HorizontalDivider()
                 IconButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colors.primary),
-                    onClick = { viewModel.navigateTo(navTo = NavDirection.ToFavoriteImages) }
+                    onClick = {
+                        onDismiss()
+                        viewModel.navigateTo(navTo = NavDirection.ToFavoriteImages)
+                    }
                 ) {
                     Text(
                         color = MaterialTheme.colors.onPrimary,

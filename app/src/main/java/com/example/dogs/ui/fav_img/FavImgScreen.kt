@@ -1,4 +1,4 @@
-package com.example.dogs.ui.detail
+package com.example.dogs.ui.fav_img
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
-import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
@@ -22,8 +21,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -33,37 +30,15 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.dogs.R
 import com.example.dogs.data.disk.model.RoomImageData
-import com.example.dogs.ui.detail.DetailViewState.*
-import kotlinx.coroutines.CoroutineScope
-
+import com.example.dogs.ui.fav_img.FavImgViewState.*
 
 @Composable
-fun DetailScreen(
-    viewModel: DetailViewModel = viewModel(),
+fun FavImgScreen(
+    viewModel: FavImgViewModel = viewModel(),
     onItemFavoriteClicked: (String, Boolean) -> Unit,
     onNavBack: () -> Unit
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
-    val coroutineScope: CoroutineScope = rememberCoroutineScope()
-    val breedId = (viewModel.uiState as? Content)?.breedId ?: ""
-
-    if (breedId.isNotBlank()) {
-        LaunchedEffect(coroutineScope) {
-            viewModel.errorMessage.collect { message ->
-                val snackbarResut = scaffoldState.snackbarHostState.showSnackbar(
-                    message = message,
-                    actionLabel = "Retry",
-                )
-                when (snackbarResut) {
-                    SnackbarResult.Dismissed -> {}
-                    SnackbarResult.ActionPerformed -> {
-                        viewModel.refreshImageUrls(breedId)
-                    }
-                }
-            }
-        }
-    }
-
 
     Scaffold(
         modifier = Modifier
@@ -93,7 +68,7 @@ fun DetailScreen(
                 .padding(it)
         ) {
             when (val state = viewModel.uiState) {
-                is Content -> DetailContent(state.result, onItemFavoriteClicked)
+                is Content -> FavImgContent(state.result, onItemFavoriteClicked)
                 Initial -> {}
             }
         }
@@ -101,13 +76,13 @@ fun DetailScreen(
 }
 
 @Composable
-fun DetailContent(
+fun FavImgContent(
     newItems: List<RoomImageData> = emptyList(),
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
     LazyColumn {
         items(newItems) { item ->
-            DetailItemContent(
+            FavImgItemContent(
                 item = item,
                 onItemFavoriteClicked = onItemFavoriteClicked
             )
@@ -117,7 +92,7 @@ fun DetailContent(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun DetailItemContent(
+fun FavImgItemContent(
     item: RoomImageData,
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {

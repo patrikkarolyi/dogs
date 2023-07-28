@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -33,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import com.example.dogs.R
 import com.example.dogs.ui.theme.DogsTheme
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MySearchToolbar(
     modifier: Modifier = Modifier,
@@ -55,6 +53,8 @@ fun MySearchToolbar(
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colors.onPrimary,
+            cursorColor = MaterialTheme.colors.secondary,
             focusedBorderColor = Color.Transparent,
             unfocusedBorderColor = Color.Transparent
         ),

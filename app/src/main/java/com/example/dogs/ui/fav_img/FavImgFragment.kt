@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
-import com.example.dogs.ui.detail.DetailsScreen
 import com.example.dogs.ui.theme.DogsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,7 +26,7 @@ class FavImgFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 DogsTheme {
-                    DetailsScreen(
+                    FavImgScreen(
                         onItemFavoriteClicked = { id, isFavorite ->
                             onItemFavoriteClicked( id, isFavorite )
                         },
@@ -47,10 +46,5 @@ class FavImgFragment : Fragment() {
 
     private fun onItemFavoriteClicked(id: String, newIsFavorite: Boolean) {
         viewModel.updateImageFavoriteById(id, newIsFavorite)
-    }
-
-    private fun onItemTextClicked(breedId: String) {
-        //binding.filterEt.setText(breedId)
-        viewModel.updateFilters(breedId)
     }
 }

@@ -2,18 +2,19 @@ package com.example.dogs.ui.fav_dog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.rememberScaffoldState
@@ -32,17 +33,15 @@ import com.example.dogs.data.disk.model.RoomBreedData
 import com.example.dogs.ui.custom_view.MySearchToolbar
 import com.example.dogs.ui.fav_dog.FavDogViewState.*
 
-
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun FavoriteDogsScreen(
+fun FavDogScreen(
     viewModel: FavDogViewModel = viewModel(),
     onItemClicked: (String) -> Unit,
-    onItemFavoriteClicked: (String, Boolean) -> Unit
+    onItemFavoriteClicked: (String, Boolean) -> Unit,
+    onNavBack: () -> Unit
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     var text by rememberSaveable { mutableStateOf("") }
-    var showSettingsDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier
@@ -53,21 +52,21 @@ fun FavoriteDogsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
             ) {
+                IconButton(
+                    onClick = { onNavBack() }
+                ) {
+                    Icon(
+                        tint = MaterialTheme.colors.secondary,
+                        imageVector = Icons.Rounded.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
                 MySearchToolbar(
                     modifier = Modifier.weight(1f),
                     onSearchQueryChanged = { text = it },
                     searchQuery = text,
                     onSearchTriggered = { viewModel.updateFilters(it) }
                 )
-                IconButton(
-                    onClick = { showSettingsDialog = true }
-                ) {
-                    Icon(
-                        tint = MaterialTheme.colors.secondary,
-                        imageVector = Icons.Rounded.Favorite,
-                        contentDescription = "Favorites"
-                    )
-                }
             }
         }
     ) {
@@ -76,7 +75,7 @@ fun FavoriteDogsScreen(
                 .padding(it)
         ) {
             when (val state = viewModel.uiState) {
-                is Content -> FavoriteDogsContent(
+                is Content -> FavDogContent(
                     state.result,
                     onItemClicked,
                     onItemFavoriteClicked
@@ -89,14 +88,16 @@ fun FavoriteDogsScreen(
 }
 
 @Composable
-fun FavoriteDogsContent(
+fun FavDogContent(
     newItems: List<RoomBreedData> = emptyList(),
     onItemClicked: (String) -> Unit,
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
-    LazyColumn {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
         items(newItems) { item ->
-            FavoriteDogsItemContent(
+            FavDogItemContent(
                 item = item,
                 onItemClicked = onItemClicked,
                 onItemFavoriteClicked = onItemFavoriteClicked
@@ -106,7 +107,7 @@ fun FavoriteDogsContent(
 }
 
 @Composable
-fun FavoriteDogsItemContent(
+fun FavDogItemContent(
     item: RoomBreedData,
     onItemClicked: (String) -> Unit,
     onItemFavoriteClicked: (String, Boolean) -> Unit

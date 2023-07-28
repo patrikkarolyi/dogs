@@ -28,7 +28,7 @@ class DetailFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 DogsTheme {
-                    DetailsScreen(
+                    DetailScreen(
                         onItemFavoriteClicked = { id, isFavorite ->
                             onItemFavoriteClicked( id, isFavorite )
                         },

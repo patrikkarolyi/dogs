@@ -8,10 +8,14 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.dogs.navigation.NavDirection
 import com.example.dogs.ui.theme.DogsTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ListFragment : Fragment() {
@@ -35,6 +39,14 @@ class ListFragment : Fragment() {
                             onItemFavoriteClicked(id, isFavorite)
                         }
                     )
+                }
+            }
+            lifecycleScope.launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                    viewModel.navDirection.collect {
+                        println(it.name)
+                        navigateTo(it)
+                    }
                 }
             }
         }
