@@ -38,8 +38,14 @@ class ListViewModel @Inject constructor(
 
     fun getAllBreeds() {
         viewModelScope.launch {
-            uiState = withContext(Dispatchers.IO) {
+            val tempState = withContext(Dispatchers.IO) {
                 Content(dataSource.getAllBreeds())
+            }
+            if(tempState.result.isEmpty()){
+                refreshAllBreeds()
+            }
+            else{
+                uiState = tempState
             }
         }
     }
@@ -75,16 +81,10 @@ class ListViewModel @Inject constructor(
                 Content(
                     result = dataSource.getAllBreeds()
                         .asSequence()
-                        .filter { it.id.contains(filter) } // blank text is always contained
+                        .filter { it.id.contains(filter) }
                         .toList(),
                 )
             }
-        }
-    }
-
-    fun showError() {
-        viewModelScope.launch {
-            errorMessage.emit("Custom error")
         }
     }
 

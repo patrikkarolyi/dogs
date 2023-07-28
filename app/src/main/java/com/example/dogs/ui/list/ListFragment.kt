@@ -8,17 +8,13 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.dogs.navigation.NavDirection
-import com.example.dogs.ui.list.adapter.BreedAdapter
 import com.example.dogs.ui.theme.DogsTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ListFragment : Fragment(), BreedAdapter.Listener {
+class ListFragment : Fragment() {
 
     private val viewModel: ListViewModel by viewModels()
 
@@ -31,7 +27,14 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 DogsTheme {
-                    ListScreen(onItemClicked = { id -> onItemSelected(id) })
+                    ListScreen(
+                        onItemClicked = { id ->
+                            onItemSelected(id)
+                        },
+                        onItemFavoriteClicked = { id, isFavorite ->
+                            onItemFavoriteClicked(id, isFavorite)
+                        }
+                    )
                 }
             }
         }
@@ -49,14 +52,9 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
     override fun onResume() {
         super.onResume()
         viewModel.getAllBreeds()
-        lifecycleScope.launch {
-            viewModel.navDirection.collectLatest {
-                navigateTo(it)
-            }
-        }
     }
 
-    override fun onItemSelected(id: String) {
+    private fun onItemSelected(id: String) {
         findNavController().navigate(
             ListFragmentDirections.toDetails(
                 breedId = id
@@ -64,5 +62,7 @@ class ListFragment : Fragment(), BreedAdapter.Listener {
         )
     }
 
-    override fun onItemFavoriteClicked(id: String, newIsFavorite: Boolean) {}
+    private fun onItemFavoriteClicked(id: String, newIsFavorite: Boolean) {
+        viewModel.updateBreedFavoriteById(id, newIsFavorite)
+    }
 }

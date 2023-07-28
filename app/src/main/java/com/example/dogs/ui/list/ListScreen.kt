@@ -2,6 +2,7 @@ package com.example.dogs.ui.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,12 +18,13 @@ import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -33,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -44,10 +47,13 @@ import com.example.dogs.navigation.NavDirection
 import com.example.dogs.ui.customViews.MySearchToolbar
 import kotlinx.coroutines.CoroutineScope
 
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClicked: (String) -> Unit) {
+fun ListScreen(
+    viewModel: ListViewModel = viewModel(),
+    onItemFavoriteClicked: (String, Boolean) -> Unit,
+    onItemClicked: (String) -> Unit
+) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val refreshing = viewModel.isRefreshing
@@ -61,7 +67,7 @@ fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClicked: (String) -
         scaffoldState = scaffoldState,
         topBar = {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 if (showSettingsDialog) {
@@ -96,7 +102,12 @@ fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClicked: (String) -
                 .pullRefresh(pullRefreshState)
         ) {
             when (val state = viewModel.uiState) {
-                is ListViewState.Content -> ListContent(state.result, onItemClicked)
+                is ListViewState.Content -> ListContent(
+                    state.result,
+                    onItemClicked,
+                    onItemFavoriteClicked
+                )
+
                 ListViewState.Initial -> {}
             }
             PullRefreshIndicator(
@@ -106,7 +117,7 @@ fun ListScreen(viewModel: ListViewModel = viewModel(), onItemClicked: (String) -
             )
         }
         LaunchedEffect(coroutineScope) {
-            viewModel.errorMessage.collect() { message ->
+            viewModel.errorMessage.collect { message ->
                 val snackbarResut = scaffoldState.snackbarHostState.showSnackbar(
                     message = message,
                     actionLabel = "Retry",
@@ -156,7 +167,7 @@ fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
                         text = stringResource(R.string.dogs)
                     )
                 }
-                Divider()
+                HorizontalDivider()
                 IconButton(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -187,13 +198,17 @@ fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
 @Composable
 fun ListContent(
     newItems: List<RoomBreedData> = emptyList(),
-    onItemClicked: (String) -> Unit
+    onItemClicked: (String) -> Unit,
+    onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
-    LazyColumn {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
         items(newItems) { item ->
             ListItemContent(
                 item = item,
-                onItemClicked = onItemClicked
+                onItemClicked = onItemClicked,
+                onItemFavoriteClicked = onItemFavoriteClicked
             )
         }
     }
@@ -202,33 +217,35 @@ fun ListContent(
 @Composable
 fun ListItemContent(
     item: RoomBreedData,
-    onItemClicked: (String) -> Unit
+    onItemClicked: (String) -> Unit,
+    onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp)
-            .background(MaterialTheme.colors.background)
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colors.surface)
-                .padding(5.dp)
-                .clickable {
-                    onItemClicked(item.breedName)
-                }
-        ) {
-            Column(
-                Modifier
-                    .background(MaterialTheme.colors.primary)
-                    .padding(5.dp)
-            ) {
-                Text(
-                    text = item.breedName,
-                    color = MaterialTheme.colors.onPrimary
-                )
+            .background(MaterialTheme.colors.primary)
+            .padding(horizontal = 10.dp)
+            .clickable {
+                onItemClicked(item.id)
             }
+    ) {
+        Text(
+            modifier = Modifier
+                .align(CenterVertically)
+                .weight(1f),
+            text = "${item.subBreedName} ${item.breedName}".trim(),
+            color = MaterialTheme.colors.onPrimary,
+
+            )
+
+        IconButton(
+            onClick = { onItemFavoriteClicked(item.id, !item.isFavorite) }
+        ) {
+            Icon(
+                tint = MaterialTheme.colors.secondary,
+                imageVector = if (item.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                contentDescription = "Favorites"
+            )
         }
     }
 }

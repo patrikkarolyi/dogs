@@ -1,9 +1,13 @@
 package com.example.dogs.ui.favoriteImages
 
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
+import com.example.dogs.ui.favoriteImages.FavoriteImagesViewState.Content
+import com.example.dogs.ui.favoriteImages.FavoriteImagesViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,34 +19,23 @@ class FavoriteImagesViewModel @Inject constructor(
     private val dataSource: DogRepository,
 ) : ViewModel() {
 
-    val state: MutableLiveData<FavoriteImagesViewState> by lazy {
-        MutableLiveData<FavoriteImagesViewState>(Initial)
-    }
+    var uiState by mutableStateOf<FavoriteImagesViewState>(Initial)
+        private set
 
     fun getFavoriteImageUrls() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-
-                val newState = Content(dataSource.getAllFavoriteImages())
-
-                withContext(Dispatchers.Main) {
-                    state.value = newState
-                }
+            uiState = withContext(Dispatchers.IO) {
+                Content(dataSource.getAllFavoriteImages())
             }
         }
     }
 
     fun updateImageFavoriteById(id: String, newIsFavorite: Boolean) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-
+            uiState = withContext(Dispatchers.IO) {
                 dataSource.updateImageFavoriteById(id, newIsFavorite)
+                Content(dataSource.getAllFavoriteImages())
 
-                val newState = Content(dataSource.getAllFavoriteImages())
-
-                withContext(Dispatchers.Main) {
-                    state.value = newState
-                }
             }
         }
     }
@@ -50,18 +43,12 @@ class FavoriteImagesViewModel @Inject constructor(
     fun updateFilters(filter: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-
-                val newState = Content(
+                Content(
                     result = dataSource.getAllFavoriteImages()
                         .asSequence()
-                        .filter { it.breedId.contains(filter) } // blank text is always contained
-                        .toList(),
-                    clearEditText = false
+                        .filter { it.breedId.contains(filter) }
+                        .toList()
                 )
-
-                withContext(Dispatchers.Main) {
-                    state.value = newState
-                }
             }
         }
     }

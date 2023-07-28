@@ -1,15 +1,19 @@
 package com.example.dogs.ui.detail
 
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
-import com.example.dogs.network.model.NetworkHttpError
 import com.example.dogs.network.model.NetworkIOError
-import com.example.dogs.network.model.NetworkResult
+import com.example.dogs.network.model.NetworkNoResult
 import com.example.dogs.network.model.NetworkUnavailable
+import com.example.dogs.ui.detail.DetailsViewState.Content
+import com.example.dogs.ui.detail.DetailsViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -19,59 +23,49 @@ class DetailsViewModel @Inject constructor(
     private val dataSource: DogRepository,
 ) : ViewModel() {
 
-    val state: MutableLiveData<DetailsViewState> by lazy {
-        MutableLiveData<DetailsViewState>(Initial)
-    }
+    var uiState by mutableStateOf<DetailsViewState>(Initial)
+        private set
+
+    var isRefreshing by mutableStateOf(false)
+        private set
+
+    var errorMessage = MutableSharedFlow<String>()
+        private set
 
     fun getImageUrls(id: String) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-
-                val newState = Content(dataSource.getImagesByBreedId(id))
-
-                if (newState.result.isEmpty()) {
-                    refreshImageUrls(id)
-                } else {
-                    withContext(Dispatchers.Main) {
-                        state.value = newState
-                    }
-                }
+            val tempState = withContext(Dispatchers.IO) {
+                Content(dataSource.getImagesByBreedId(id), id)
+            }
+            if (tempState.result.isEmpty()) {
+                refreshImageUrls(id)
+            } else {
+                uiState = tempState
             }
         }
     }
 
     fun refreshImageUrls(id: String) {
         viewModelScope.launch {
-
-            state.value = Refreshing
-
-            withContext(Dispatchers.IO) {
-
-                val newState = when (dataSource.downloadImagesByBreedId(id)) {
-                    is NetworkHttpError -> NetworkError("HTTP error")
-                    NetworkIOError -> NetworkError("IO error")
-                    NetworkUnavailable -> NetworkError("No internet")
-                    is NetworkResult -> Content(dataSource.getImagesByBreedId(id))
+            isRefreshing = true
+            uiState = withContext(Dispatchers.IO) {
+                when (dataSource.downloadImagesByBreedId(id)) {
+                    is NetworkNoResult -> errorMessage.emit("HTTP error")
+                    NetworkIOError -> errorMessage.emit("IO error")
+                    NetworkUnavailable -> errorMessage.emit("No internet")
+                    else -> {}
                 }
-
-                withContext(Dispatchers.Main) {
-                    state.value = newState
-                }
+                Content(dataSource.getImagesByBreedId(id), id)
             }
+            isRefreshing = false
         }
     }
 
     fun updateImageFavoriteById(breedId: String, url: String, newIsFavorite: Boolean) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-
-                dataSource.updateImageFavoriteById(url,newIsFavorite)
-
-                val newState = Content(dataSource.getImagesByBreedId(breedId))
-
-                withContext(Dispatchers.Main) {
-                    state.value = newState
-                }
+            uiState = withContext(Dispatchers.IO) {
+                dataSource.updateImageFavoriteById(url, newIsFavorite)
+                Content(dataSource.getImagesByBreedId(breedId), breedId)
             }
         }
     }
