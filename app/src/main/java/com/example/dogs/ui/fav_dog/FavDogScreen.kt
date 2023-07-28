@@ -1,4 +1,4 @@
-package com.example.dogs.ui.favoriteDogs
+package com.example.dogs.ui.fav_dog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,14 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dogs.data.disk.model.RoomBreedData
-import com.example.dogs.ui.customViews.MySearchToolbar
-import com.example.dogs.ui.favoriteDogs.FavoriteDogsViewState.*
+import com.example.dogs.ui.custom_view.MySearchToolbar
+import com.example.dogs.ui.fav_dog.FavDogViewState.*
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FavoriteDogsScreen(
-    viewModel: FavoriteDogsViewModel = viewModel(),
+    viewModel: FavDogViewModel = viewModel(),
     onItemClicked: (String) -> Unit,
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {

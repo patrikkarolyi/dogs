@@ -1,4 +1,4 @@
-package com.example.dogs.ui.favoriteImages
+package com.example.dogs.ui.fav_img
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -6,8 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
-import com.example.dogs.ui.favoriteImages.FavoriteImagesViewState.Content
-import com.example.dogs.ui.favoriteImages.FavoriteImagesViewState.Initial
+import com.example.dogs.ui.fav_img.FavImgViewState.Content
+import com.example.dogs.ui.fav_img.FavImgViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,11 +15,11 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class FavoriteImagesViewModel @Inject constructor(
+class FavImgViewModel @Inject constructor(
     private val dataSource: DogRepository,
 ) : ViewModel() {
 
-    var uiState by mutableStateOf<FavoriteImagesViewState>(Initial)
+    var uiState by mutableStateOf<FavImgViewState>(Initial)
         private set
 
     fun getFavoriteImageUrls() {

@@ -20,7 +20,7 @@
     </fragment>
     <fragment
         android:id="@+id/detailsFragment"
-        android:name="com.example.dogs.ui.detail.DetailsFragment"
+        android:name="com.example.dogs.ui.detail.DetailFragment"
         android:label="DetailsFragment" >
         <argument
             android:name="breedId"
@@ -29,7 +29,7 @@
     </fragment>
     <fragment
         android:id="@+id/favoriteFragment"
-        android:name="com.example.dogs.ui.favoriteDogs.FavoriteDogsFragment"
+        android:name="com.example.dogs.ui.fav_dog.FavDogFragment"
         android:label="FavoriteFragment" >
         <action
             android:id="@+id/toList"
@@ -43,6 +43,6 @@
     </fragment>
     <fragment
         android:id="@+id/favoriteImagesFragment"
-        android:name="com.example.dogs.ui.favoriteImages.FavoriteImagesFragment"
+        android:name="com.example.dogs.ui.fav_img.FavImgFragment"
         android:label="FavoriteImagesFragment" />
 </navigation>

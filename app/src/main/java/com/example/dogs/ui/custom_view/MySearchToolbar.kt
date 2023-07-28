@@ -1,4 +1,4 @@
-package com.example.dogs.ui.customViews
+package com.example.dogs.ui.custom_view
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth

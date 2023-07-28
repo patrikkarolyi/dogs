@@ -1,4 +1,4 @@
-package com.example.dogs.ui.favoriteDogs
+package com.example.dogs.ui.fav_img
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,14 +8,15 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.findNavController
+import com.example.dogs.ui.detail.DetailsScreen
 import com.example.dogs.ui.theme.DogsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class FavoriteDogsFragment : Fragment() {
+class FavImgFragment : Fragment() {
 
-    private val viewModel: FavoriteDogsViewModel by viewModels()
+    private val viewModel: FavImgViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,11 +27,13 @@ class FavoriteDogsFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 DogsTheme {
-                    FavoriteDogsScreen(
-                        onItemClicked = { id -> onItemSelected(id) },
+                    DetailsScreen(
                         onItemFavoriteClicked = { id, isFavorite ->
                             onItemFavoriteClicked( id, isFavorite )
                         },
+                        onNavBack = {
+                            findNavController().popBackStack()
+                        }
                     )
                 }
             }
@@ -39,18 +42,15 @@ class FavoriteDogsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.getAllFavoriteBreeds()
-    }
-
-    private fun onItemSelected(id: String) {
-        findNavController().navigate(
-            FavoriteDogsFragmentDirections.toDetails(
-                breedId = id
-            )
-        )
+        viewModel.getFavoriteImageUrls()
     }
 
     private fun onItemFavoriteClicked(id: String, newIsFavorite: Boolean) {
-        viewModel.updateBreedFavoriteById(id, newIsFavorite)
+        viewModel.updateImageFavoriteById(id, newIsFavorite)
+    }
+
+    private fun onItemTextClicked(breedId: String) {
+        //binding.filterEt.setText(breedId)
+        viewModel.updateFilters(breedId)
     }
 }

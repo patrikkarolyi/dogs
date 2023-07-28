@@ -9,8 +9,8 @@ import com.example.dogs.data.DogRepository
 import com.example.dogs.network.model.NetworkIOError
 import com.example.dogs.network.model.NetworkNoResult
 import com.example.dogs.network.model.NetworkUnavailable
-import com.example.dogs.ui.detail.DetailsViewState.Content
-import com.example.dogs.ui.detail.DetailsViewState.Initial
+import com.example.dogs.ui.detail.DetailViewState.Content
+import com.example.dogs.ui.detail.DetailViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,11 +19,11 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailsViewModel @Inject constructor(
+class DetailViewModel @Inject constructor(
     private val dataSource: DogRepository,
 ) : ViewModel() {
 
-    var uiState by mutableStateOf<DetailsViewState>(Initial)
+    var uiState by mutableStateOf<DetailViewState>(Initial)
         private set
 
     var isRefreshing by mutableStateOf(false)

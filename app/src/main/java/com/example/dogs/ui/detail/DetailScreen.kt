@@ -34,14 +34,14 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.dogs.R
 import com.example.dogs.data.disk.model.RoomImageData
-import com.example.dogs.ui.detail.DetailsViewState.*
+import com.example.dogs.ui.detail.DetailViewState.*
 import kotlinx.coroutines.CoroutineScope
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DetailsScreen(
-    viewModel: DetailsViewModel = viewModel(),
+    viewModel: DetailViewModel = viewModel(),
     onItemFavoriteClicked: (String, Boolean) -> Unit,
     onNavBack: () -> Unit
 ) {

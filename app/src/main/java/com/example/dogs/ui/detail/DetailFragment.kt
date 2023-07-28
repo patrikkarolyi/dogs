@@ -14,10 +14,10 @@ import com.example.dogs.ui.theme.DogsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DetailsFragment : Fragment() {
+class DetailFragment : Fragment() {
 
-    private val viewModel: DetailsViewModel by viewModels()
-    private val args: DetailsFragmentArgs by navArgs()
+    private val viewModel: DetailViewModel by viewModels()
+    private val args: DetailFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,

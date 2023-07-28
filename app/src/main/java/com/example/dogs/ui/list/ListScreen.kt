@@ -44,7 +44,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dogs.R
 import com.example.dogs.data.disk.model.RoomBreedData
 import com.example.dogs.navigation.NavDirection
-import com.example.dogs.ui.customViews.MySearchToolbar
+import com.example.dogs.ui.custom_view.MySearchToolbar
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterialApi::class)
