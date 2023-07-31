@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
@@ -19,7 +17,6 @@ import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -41,8 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.dogs.R
-import com.example.dogs.data.disk.model.RoomBreedData
 import com.example.dogs.navigation.NavDirection
+import com.example.dogs.ui.custom_view.ListContent
 import com.example.dogs.ui.custom_view.MySearchToolbar
 import kotlinx.coroutines.CoroutineScope
 
@@ -196,60 +193,4 @@ fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
             )
         },
     )
-}
-
-
-@Composable
-fun ListContent(
-    newItems: List<RoomBreedData> = emptyList(),
-    onItemClicked: (String) -> Unit,
-    onItemFavoriteClicked: (String, Boolean) -> Unit
-) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        items(newItems) { item ->
-            ListItemContent(
-                item = item,
-                onItemClicked = onItemClicked,
-                onItemFavoriteClicked = onItemFavoriteClicked
-            )
-        }
-    }
-}
-
-@Composable
-fun ListItemContent(
-    item: RoomBreedData,
-    onItemClicked: (String) -> Unit,
-    onItemFavoriteClicked: (String, Boolean) -> Unit
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colors.primary)
-            .padding(horizontal = 10.dp)
-            .clickable {
-                onItemClicked(item.id)
-            }
-    ) {
-        Text(
-            modifier = Modifier
-                .align(CenterVertically)
-                .weight(1f),
-            text = "${item.subBreedName} ${item.breedName}".trim(),
-            color = MaterialTheme.colors.onPrimary,
-
-            )
-
-        IconButton(
-            onClick = { onItemFavoriteClicked(item.id, !item.isFavorite) }
-        ) {
-            Icon(
-                tint = MaterialTheme.colors.secondary,
-                imageVector = if (item.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = "Favorites"
-            )
-        }
-    }
 }
