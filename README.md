@@ -1,8 +1,8 @@
 # Android application to watch dogs
-I feel like I could go on with the implementation but I am already late.
-There are no kotlin flows or any tests but It is quite a good example of how I start a project and build up from the first step. Hope you like it.
+A simple app that shows dogs.
 
 ## Libs that used in code
+- Compose
 - Navigation component
 - Dagger hilt
 - Retrofit 
