@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
-import com.example.dogs.navigation.NavDirection
 import com.example.dogs.network.model.NetworkIOError
 import com.example.dogs.network.model.NetworkNoResult
 import com.example.dogs.network.model.NetworkUnavailable
@@ -31,9 +30,6 @@ class ListViewModel @Inject constructor(
         private set
 
     var errorMessage = MutableSharedFlow<String>()
-        private set
-
-    var navDirection = MutableSharedFlow<NavDirection>()
         private set
 
     fun getAllBreeds() {
@@ -85,12 +81,6 @@ class ListViewModel @Inject constructor(
                         .toList(),
                 )
             }
-        }
-    }
-
-    fun navigateTo(navTo: NavDirection) {
-        viewModelScope.launch {
-            navDirection.emit(navTo)
         }
     }
 }

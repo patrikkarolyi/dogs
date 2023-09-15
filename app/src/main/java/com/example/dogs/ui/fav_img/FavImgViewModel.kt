@@ -35,7 +35,6 @@ class FavImgViewModel @Inject constructor(
             uiState = withContext(Dispatchers.IO) {
                 dataSource.updateImageFavoriteById(id, newIsFavorite)
                 Content(dataSource.getAllFavoriteImages())
-
             }
         }
     }

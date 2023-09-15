@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
@@ -21,8 +23,6 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,8 +37,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.dogs.R
-import com.example.dogs.navigation.NavDirection
+import com.example.dogs.navigation.Screen
 import com.example.dogs.ui.custom_view.ListContent
 import com.example.dogs.ui.custom_view.MySearchToolbar
 import kotlinx.coroutines.CoroutineScope
@@ -47,8 +48,7 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun ListScreen(
     viewModel: ListViewModel = viewModel(),
-    onItemFavoriteClicked: (String, Boolean) -> Unit,
-    onItemClicked: (String) -> Unit
+    navController: NavController,
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
@@ -68,8 +68,8 @@ fun ListScreen(
             ) {
                 if (showSettingsDialog) {
                     SettingsDialog(
-                        viewModel = viewModel,
-                        onDismiss = {
+                        navController = navController,
+                        onButtonClick = {
                             showSettingsDialog = false
                         },
                     )
@@ -100,8 +100,10 @@ fun ListScreen(
             when (val state = viewModel.uiState) {
                 is ListViewState.Content -> ListContent(
                     state.result,
-                    onItemClicked,
-                    onItemFavoriteClicked
+                    { id ->
+                        navController.navigate(Screen.DetailScreen.withArgs(id))
+                    },
+                    viewModel::updateBreedFavoriteById
                 )
 
                 ListViewState.Initial -> {}
@@ -113,6 +115,7 @@ fun ListScreen(
             )
         }
         LaunchedEffect(coroutineScope) {
+            viewModel.getAllBreeds()
             viewModel.errorMessage.collect { message ->
                 val snackbarResut = scaffoldState.snackbarHostState.showSnackbar(
                     message = message,
@@ -130,14 +133,18 @@ fun ListScreen(
 }
 
 @Composable
-fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
+fun SettingsDialog(
+    navController: NavController,
+    onButtonClick: () -> Unit
+) {
+
     AlertDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
             .background(MaterialTheme.colors.surface),
-        onDismissRequest = { onDismiss() },
+        onDismissRequest = { onButtonClick() },
         title = {
             Text(
                 text = stringResource(R.string.favorites),
@@ -157,8 +164,8 @@ fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
                         .fillMaxWidth()
                         .background(MaterialTheme.colors.primary),
                     onClick = {
-                        onDismiss()
-                        viewModel.navigateTo(navTo = NavDirection.ToFavoriteDogs)
+                        navController.navigate(Screen.FavDogScreen.route)
+                        onButtonClick()
                     }
                 ) {
                     Text(
@@ -171,8 +178,8 @@ fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
                         .fillMaxWidth()
                         .background(MaterialTheme.colors.primary),
                     onClick = {
-                        onDismiss()
-                        viewModel.navigateTo(navTo = NavDirection.ToFavoriteImages)
+                        navController.navigate(Screen.FavImgScreen.route)
+                        onButtonClick()
                     }
                 ) {
                     Text(
@@ -189,7 +196,7 @@ fun SettingsDialog(viewModel: ListViewModel, onDismiss: () -> Unit) {
                 color = MaterialTheme.colors.secondary,
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
-                    .clickable { onDismiss() },
+                    .clickable { onButtonClick() },
             )
         },
     )
