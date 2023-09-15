@@ -15,10 +15,6 @@ import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,7 +31,6 @@ fun FavDogScreen(
     navController: NavController,
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
-    var text by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewModel.getAllFavoriteBreeds()
@@ -61,8 +56,6 @@ fun FavDogScreen(
                 }
                 MySearchToolbar(
                     modifier = Modifier.weight(1f),
-                    onSearchQueryChanged = { text = it },
-                    searchQuery = text,
                     onSearchTriggered = { viewModel.updateFilters(it) }
                 )
             }

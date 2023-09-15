@@ -32,16 +32,22 @@ class ListViewModel @Inject constructor(
     var errorMessage = MutableSharedFlow<String>()
         private set
 
+    private var currentFilter by mutableStateOf("")
+
     fun getAllBreeds() {
         viewModelScope.launch {
-            val tempState = withContext(Dispatchers.IO) {
-                Content(dataSource.getAllBreeds())
-            }
-            if(tempState.result.isEmpty()){
-                refreshAllBreeds()
-            }
-            else{
-                uiState = tempState
+            uiState = withContext(Dispatchers.IO) {
+                Content(
+                    dataSource.getAllBreeds()
+                        .apply {
+                            if (isEmpty()) {
+                                refreshAllBreeds()
+                            }
+                        }
+                        .asSequence()
+                        .filter { it.id.contains(currentFilter) }
+                        .toList(),
+                )
             }
         }
     }
@@ -56,7 +62,12 @@ class ListViewModel @Inject constructor(
                     NetworkUnavailable -> errorMessage.emit("No internet")
                     else -> {}
                 }
-                Content(dataSource.getAllBreeds())
+                Content(
+                    dataSource.getAllBreeds()
+                        .asSequence()
+                        .filter { it.id.contains(currentFilter) }
+                        .toList(),
+                )
             }
             isRefreshing = false
         }
@@ -64,23 +75,17 @@ class ListViewModel @Inject constructor(
 
     fun updateBreedFavoriteById(id: String, newIsFavorite: Boolean) {
         viewModelScope.launch {
-            uiState = withContext(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 dataSource.updateBreedFavoriteById(id, newIsFavorite)
-                Content(dataSource.getAllBreeds())
             }
+            getAllBreeds()
         }
     }
 
     fun updateFilters(filter: String) {
         viewModelScope.launch {
-            uiState = withContext(Dispatchers.IO) {
-                Content(
-                    result = dataSource.getAllBreeds()
-                        .asSequence()
-                        .filter { it.id.contains(filter) }
-                        .toList(),
-                )
-            }
+            currentFilter = filter
+            getAllBreeds()
         }
     }
 }
