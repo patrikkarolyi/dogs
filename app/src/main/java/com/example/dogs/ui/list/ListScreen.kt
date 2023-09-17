@@ -2,7 +2,9 @@ package com.example.dogs.ui.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
@@ -22,6 +24,8 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -46,6 +50,7 @@ fun ListScreen(
     val refreshing = viewModel.isRefreshing
     val pullRefreshState = rememberPullRefreshState(refreshing, { viewModel.refreshAllBreeds() })
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val viewState by viewModel.uiState.collectAsState()
 
     MyNavDrawerView(
         modifier = Modifier,
@@ -93,15 +98,17 @@ fun ListScreen(
                     .padding(it)
                     .pullRefresh(pullRefreshState)
             ) {
-                when (val state = viewModel.uiState) {
-                    is ListViewState.Content -> ListContent(
-                        state.result,
-                    ) { id ->
-                        navController.navigate(Screen.DetailScreen.withArgs(id))
+                viewState.let { state ->
+                    when (state) {
+                        ListViewState.Initial -> {
+                            Column(modifier = Modifier.fillMaxSize()) {}
+                        }
+                        is ListViewState.Content -> ListContent(
+                            state.result,
+                        ) { id -> navController.navigate(Screen.DetailScreen.withArgs(id)) }
                     }
-
-                    ListViewState.Initial -> {}
                 }
+
                 PullRefreshIndicator(
                     refreshing,
                     pullRefreshState,

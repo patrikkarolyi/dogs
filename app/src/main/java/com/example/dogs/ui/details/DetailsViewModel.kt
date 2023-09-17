@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dogs.data.DogRepository
+import com.example.dogs.data.ImageRepository
 import com.example.dogs.network.model.NetworkIOError
 import com.example.dogs.network.model.NetworkNoResult
 import com.example.dogs.network.model.NetworkUnavailable
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
-    private val dataSource: DogRepository,
+    private val dataSource: ImageRepository,
 ) : ViewModel() {
 
     var uiState by mutableStateOf<DetailViewState>(Initial)

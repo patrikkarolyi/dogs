@@ -2,17 +2,18 @@ package com.example.dogs.data.disk
 
 import androidx.room.*
 import com.example.dogs.data.disk.model.RoomBreedData
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DogDAO {
 
     @Transaction
     @Query("SELECT * FROM breeds")
-    fun getAllBreeds(): List<RoomBreedData>
+    fun getAllBreeds(): Flow<List<RoomBreedData>>
 
     @Transaction
     @Query("SELECT * FROM breeds WHERE isFavorite=1")
-    fun getAllFavoriteBreeds(): List<RoomBreedData>
+    fun getAllFavoriteBreeds(): Flow<List<RoomBreedData>>
 
     @Transaction
     @Query("SELECT * FROM breeds WHERE id=:id")

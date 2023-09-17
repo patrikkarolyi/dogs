@@ -2,9 +2,9 @@ package com.example.dogs.data
 
 import com.example.dogs.data.disk.DiskDataSource
 import com.example.dogs.data.disk.model.RoomBreedData
-import com.example.dogs.data.disk.model.RoomImageData
 import com.example.dogs.network.NetworkDataSource
 import com.example.dogs.network.model.*
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class DogRepository @Inject constructor(
@@ -12,11 +12,11 @@ class DogRepository @Inject constructor(
     private val diskDataSource: DiskDataSource,
 ) {
 
-    fun getAllBreeds(): List<RoomBreedData> {
+    fun observeAllBreeds(): Flow<List<RoomBreedData>> {
         return diskDataSource.getAllBreeds()
     }
 
-    fun getAllFavoriteBreeds(): List<RoomBreedData> {
+    fun getAllFavoriteBreeds(): Flow<List<RoomBreedData>> {
         return diskDataSource.getAllFavoriteBreeds()
     }
 
@@ -58,29 +58,6 @@ class DogRepository @Inject constructor(
         )
     }
 
-    suspend fun downloadImagesByBreedId(id: String): NetworkResponse<ImagesData> {
-        val dog = diskDataSource.getBreedById(id)
-        return when (val networkResult = networkDataSource.getAllUrlOfBreed(dog.breedName, dog.subBreedName)) {
-            is NetworkResult -> {
-                diskDataSource.insertImagesObject(
-                    networkResult.result.message.map {
-                        RoomImageData(
-                            url = it,
-                            breedId = id,
-                            isFavorite = false
-                        )
-                    }
-                )
-                networkResult
-            }
-            else -> networkResult
-        }
-    }
-
-    fun getImagesByBreedId(breedId: String): List<RoomImageData> {
-        return diskDataSource.getImagesByBreedId(breedId)
-    }
-
     fun updateBreedFavoriteById(id: String, newIsFavorite: Boolean) {
         val breedItem = diskDataSource.getBreedById(id)
         diskDataSource.updateBreed(
@@ -88,21 +65,6 @@ class DogRepository @Inject constructor(
                 id = breedItem.id,
                 breedName = breedItem.breedName,
                 subBreedName = breedItem.subBreedName,
-                isFavorite = newIsFavorite
-            )
-        )
-    }
-
-    fun getAllFavoriteImages(): List<RoomImageData> {
-        return diskDataSource.getAllFavoriteImages()
-    }
-
-    fun updateImageFavoriteById(id: String, newIsFavorite: Boolean) {
-        val imageItem = diskDataSource.getImageById(id)
-        diskDataSource.updateBreed(
-            RoomImageData(
-                url = imageItem.url,
-                breedId = imageItem.breedId,
                 isFavorite = newIsFavorite
             )
         )

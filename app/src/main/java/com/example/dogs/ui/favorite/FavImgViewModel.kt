@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dogs.data.DogRepository
+import com.example.dogs.data.ImageRepository
 import com.example.dogs.ui.favorite.FavImgViewState.Content
 import com.example.dogs.ui.favorite.FavImgViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavImgViewModel @Inject constructor(
-    private val dataSource: DogRepository,
+    private val dataSource: ImageRepository,
 ) : ViewModel() {
 
     var uiState by mutableStateOf<FavImgViewState>(Initial)

@@ -2,6 +2,7 @@ package com.example.dogs.data.disk
 
 import com.example.dogs.data.disk.model.RoomBreedData
 import com.example.dogs.data.disk.model.RoomImageData
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class DiskDataSource @Inject constructor(
@@ -9,11 +10,11 @@ class DiskDataSource @Inject constructor(
     private val imageDAO: ImageDAO
 ) {
 
-    fun getAllBreeds(): List<RoomBreedData> {
+    fun getAllBreeds(): Flow<List<RoomBreedData>> {
         return dogsDAO.getAllBreeds()
     }
 
-    fun getAllFavoriteBreeds(): List<RoomBreedData> {
+    fun getAllFavoriteBreeds(): Flow<List<RoomBreedData>> {
         return dogsDAO.getAllFavoriteBreeds()
     }
 

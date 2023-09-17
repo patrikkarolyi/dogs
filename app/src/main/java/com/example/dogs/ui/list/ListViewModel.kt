@@ -3,17 +3,21 @@ package com.example.dogs.ui.list
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
-import com.example.dogs.network.model.NetworkIOError
-import com.example.dogs.network.model.NetworkNoResult
-import com.example.dogs.network.model.NetworkUnavailable
-import com.example.dogs.ui.list.ListViewState.Content
+import com.example.dogs.data.disk.model.RoomBreedData
 import com.example.dogs.ui.list.ListViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -21,10 +25,28 @@ import javax.inject.Inject
 @HiltViewModel
 class ListViewModel @Inject constructor(
     private val dataSource: DogRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    var uiState by mutableStateOf<ListViewState>(Initial)
-        private set
+    private val currentFilter = savedStateHandle.getStateFlow("current_filter", "")
+
+    val uiState: StateFlow<ListViewState> =
+        combine(
+            dataSource.observeAllBreeds(),
+            currentFilter,
+        ) { list, filter ->
+            list.filter { item -> item.id.contains(filter) }
+        }
+            .map<List<RoomBreedData>, ListViewState>(ListViewState::Content)
+            .onStart {
+                refreshAllBreeds()
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = Initial,
+            )
+
 
     var isRefreshing by mutableStateOf(false)
         private set
@@ -32,22 +54,11 @@ class ListViewModel @Inject constructor(
     var errorMessage = MutableSharedFlow<String>()
         private set
 
-    private var currentFilter by mutableStateOf("")
 
     fun getAllBreeds() {
         viewModelScope.launch {
-            uiState = withContext(Dispatchers.IO) {
-                Content(
-                    dataSource.getAllBreeds()
-                        .apply {
-                            if (isEmpty()) {
-                                refreshAllBreeds()
-                            }
-                        }
-                        .asSequence()
-                        .filter { it.id.contains(currentFilter) }
-                        .toList(),
-                )
+            withContext(Dispatchers.IO) {
+                dataSource.observeAllBreeds()
             }
         }
     }
@@ -55,19 +66,8 @@ class ListViewModel @Inject constructor(
     fun refreshAllBreeds() {
         viewModelScope.launch {
             isRefreshing = true
-            uiState = withContext(Dispatchers.IO) {
-                when (dataSource.downloadAllBreeds()) {
-                    is NetworkNoResult -> errorMessage.emit("HTTP error")
-                    NetworkIOError -> errorMessage.emit("IO error")
-                    NetworkUnavailable -> errorMessage.emit("No internet")
-                    else -> {}
-                }
-                Content(
-                    dataSource.getAllBreeds()
-                        .asSequence()
-                        .filter { it.id.contains(currentFilter) }
-                        .toList(),
-                )
+            withContext(Dispatchers.IO) {
+                dataSource.downloadAllBreeds()
             }
             isRefreshing = false
         }
@@ -84,7 +84,7 @@ class ListViewModel @Inject constructor(
 
     fun updateFilters(filter: String) {
         viewModelScope.launch {
-            currentFilter = filter
+            savedStateHandle["current_filter"] = filter
             getAllBreeds()
         }
     }
