@@ -1,4 +1,4 @@
-package com.example.dogs.ui.fav_img
+package com.example.dogs.ui.favorite
 
 import com.example.dogs.data.disk.model.RoomImageData
 

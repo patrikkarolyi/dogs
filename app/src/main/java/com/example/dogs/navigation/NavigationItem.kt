@@ -1,10 +1,33 @@
 package com.example.dogs.navigation
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.dogs.R
 
 data class NavigationItem(
-    val title: String,
+    val titleRes: Int,
+    val route: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    val onClick: () -> Unit
 )
+
+object NavigationItems {
+    val navigationItems = listOf(
+        NavigationItem(
+            titleRes = R.string.all,
+            route = Screen.ListScreen.route,
+            selectedIcon = Icons.Filled.Home,
+            unselectedIcon = Icons.Outlined.Home,
+        ),
+        NavigationItem(
+            titleRes = R.string.images,
+            route = Screen.FavImgScreen.route,
+            selectedIcon = Icons.Filled.Favorite,
+            unselectedIcon = Icons.Outlined.FavoriteBorder,
+        )
+    )
+}

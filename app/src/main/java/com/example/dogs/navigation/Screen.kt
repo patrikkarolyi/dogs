@@ -1,10 +1,9 @@
 package com.example.dogs.navigation
 
 sealed class Screen(val route : String) {
-    object ListScreen : Screen("list_screen")
-    object DetailScreen : Screen("setting_screen")
-    object FavDogScreen : Screen("favdog_screen")
-    object FavImgScreen : Screen("favimg_screen")
+    data object ListScreen : Screen("list_screen")
+    data object DetailScreen : Screen("setting_screen")
+    data object FavImgScreen : Screen("favimg_screen")
 
     fun withArgs(vararg args: String): String {
         return buildString {

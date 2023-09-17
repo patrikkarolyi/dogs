@@ -1,4 +1,4 @@
-package com.example.dogs.ui.fav_dog
+package com.example.dogs.ui.favorite
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -6,8 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
-import com.example.dogs.ui.fav_dog.FavDogViewState.Content
-import com.example.dogs.ui.fav_dog.FavDogViewState.Initial
+import com.example.dogs.ui.favorite.FavImgViewState.Content
+import com.example.dogs.ui.favorite.FavImgViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,41 +15,41 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class FavDogViewModel @Inject constructor(
+class FavImgViewModel @Inject constructor(
     private val dataSource: DogRepository,
 ) : ViewModel() {
 
-    var uiState by mutableStateOf<FavDogViewState>(Initial)
+    var uiState by mutableStateOf<FavImgViewState>(Initial)
         private set
 
+    private var currentFilter by mutableStateOf("")
 
-    fun getAllFavoriteBreeds() {
-        viewModelScope.launch {
-            uiState = withContext(Dispatchers.IO) {
-                Content(dataSource.getAllFavoriteBreeds())
-            }
-        }
-    }
-
-    fun updateFilters(filter: String) {
+    fun getFavoriteImageUrls() {
         viewModelScope.launch {
             uiState = withContext(Dispatchers.IO) {
                 Content(
-                    result = dataSource.getAllBreeds()
+                    dataSource.getAllFavoriteImages()
                         .asSequence()
-                        .filter { it.id.contains(filter) }
+                        .filter { it.breedId.contains(currentFilter) }
                         .toList(),
                 )
             }
         }
     }
 
-    fun updateBreedFavoriteById(id: String, newIsFavorite: Boolean) {
+    fun updateImageFavoriteById(id: String, newIsFavorite: Boolean) {
         viewModelScope.launch {
             uiState = withContext(Dispatchers.IO) {
-                dataSource.updateBreedFavoriteById(id, newIsFavorite)
-                Content(dataSource.getAllFavoriteBreeds())
+                dataSource.updateImageFavoriteById(id, newIsFavorite)
+                Content(dataSource.getAllFavoriteImages())
             }
+        }
+    }
+
+    fun updateFilters(filter: String) {
+        viewModelScope.launch {
+            currentFilter = filter
+            getFavoriteImageUrls()
         }
     }
 }

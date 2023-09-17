@@ -8,12 +8,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.dogs.ui.detail.DetailScreen
-import com.example.dogs.ui.detail.DetailViewModel
-import com.example.dogs.ui.fav_dog.FavDogScreen
-import com.example.dogs.ui.fav_dog.FavDogViewModel
-import com.example.dogs.ui.fav_img.FavImgScreen
-import com.example.dogs.ui.fav_img.FavImgViewModel
+import com.example.dogs.ui.details.DetailScreen
+import com.example.dogs.ui.details.DetailsViewModel
+import com.example.dogs.ui.favorite.FavImgScreen
+import com.example.dogs.ui.favorite.FavImgViewModel
 import com.example.dogs.ui.list.ListScreen
 import com.example.dogs.ui.list.ListViewModel
 
@@ -21,8 +19,7 @@ import com.example.dogs.ui.list.ListViewModel
 fun NavigationSystem() {
     val navController = rememberNavController()
     val listViewModel: ListViewModel = viewModel()
-    val detailViewModel: DetailViewModel = viewModel()
-    val favDogViewModel: FavDogViewModel = viewModel()
+    val detailsViewModel: DetailsViewModel = viewModel()
     val favImgViewModel: FavImgViewModel = viewModel()
 
 
@@ -48,15 +45,8 @@ fun NavigationSystem() {
             )){entry ->
             DetailScreen(
                 navController = navController,
-                viewModel = detailViewModel,
+                viewModel = detailsViewModel,
                 breedId = entry.arguments?.getString("name") ?: ""
-            )
-        }
-
-        composable(route = Screen.FavDogScreen.route){
-            FavDogScreen(
-                navController = navController,
-                viewModel = favDogViewModel
             )
         }
 

@@ -1,22 +1,17 @@
-package com.example.dogs.ui.list
+package com.example.dogs.ui.favorite
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
-import androidx.compose.material.SnackbarResult
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
@@ -24,28 +19,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.dogs.navigation.Screen
-import com.example.dogs.ui.common.ListContent
+import com.example.dogs.ui.common.DetailContent
 import com.example.dogs.ui.common.MyNavDrawerView
 import com.example.dogs.ui.common.MySearchToolbar
+import com.example.dogs.ui.favorite.FavImgViewState.Content
+import com.example.dogs.ui.favorite.FavImgViewState.Initial
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ListScreen(
-    viewModel: ListViewModel = viewModel(),
+fun FavImgScreen(
+    viewModel: FavImgViewModel = viewModel(),
     navController: NavController,
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
-    val refreshing = viewModel.isRefreshing
-    val pullRefreshState = rememberPullRefreshState(refreshing, { viewModel.refreshAllBreeds() })
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    LaunchedEffect(Unit) {
+        viewModel.getFavoriteImageUrls()
+    }
+
 
     MyNavDrawerView(
         modifier = Modifier,
@@ -58,8 +54,9 @@ fun ListScreen(
             scaffoldState = scaffoldState,
             topBar = {
                 Row(
-                    verticalAlignment = CenterVertically,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(
                         onClick = {
@@ -91,36 +88,16 @@ fun ListScreen(
             Box(
                 modifier = Modifier
                     .padding(it)
-                    .pullRefresh(pullRefreshState)
             ) {
                 when (val state = viewModel.uiState) {
-                    is ListViewState.Content -> ListContent(
-                        state.result,
-                    ) { id ->
-                        navController.navigate(Screen.DetailScreen.withArgs(id))
-                    }
-
-                    ListViewState.Initial -> {}
-                }
-                PullRefreshIndicator(
-                    refreshing,
-                    pullRefreshState,
-                    Modifier.align(Alignment.TopCenter)
-                )
-            }
-            LaunchedEffect(coroutineScope) {
-                viewModel.getAllBreeds()
-                viewModel.errorMessage.collect { message ->
-                    val snackbarResut = scaffoldState.snackbarHostState.showSnackbar(
-                        message = message,
-                        actionLabel = "Retry",
-                    )
-                    when (snackbarResut) {
-                        SnackbarResult.Dismissed -> {}
-                        SnackbarResult.ActionPerformed -> {
-                            viewModel.refreshAllBreeds()
+                    is Content -> DetailContent(
+                        newItems = state.result,
+                        onItemFavoriteClicked = { url, isFavorite ->
+                            viewModel.updateImageFavoriteById(url, isFavorite)
                         }
-                    }
+                    )
+
+                    Initial -> {}
                 }
             }
         }

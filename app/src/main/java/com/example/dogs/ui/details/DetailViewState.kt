@@ -1,4 +1,4 @@
-package com.example.dogs.ui.detail
+package com.example.dogs.ui.details
 
 import com.example.dogs.data.disk.model.RoomImageData
 

@@ -1,6 +1,5 @@
-package com.example.dogs.ui.custom_view
+package com.example.dogs.ui.common
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +14,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,43 +48,48 @@ fun DetailItemContent(
     item: RoomImageData,
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
-    Box(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        GlideImage(
-            model = item.url,
-            contentDescription = "image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            it
-                .placeholder(R.drawable.place_holder)
-        }
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .background(MaterialTheme.colors.primary)
-                .padding(5.dp)
+        Column {
+            GlideImage(
+                model = item.url,
+                contentDescription = "image",
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                it
+                    .placeholder(R.drawable.place_holder)
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
 
-        ) {
-            Text(
-                text = item.breedId,
-                color = MaterialTheme.colors.onPrimary
-            )
-        }
-        IconButton(
-            modifier = Modifier
-                .align(Alignment.TopEnd),
-            onClick = { onItemFavoriteClicked(item.url, !item.isFavorite) }
-        ) {
-            Icon(
-                tint = MaterialTheme.colors.secondary,
-                imageVector = if (item.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = "Favorites"
-            )
-        }
+            ) {
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 8.dp),
+                    text = item.breedId,
+                )
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd),
+                    onClick = { onItemFavoriteClicked(item.url, !item.isFavorite) }
+                ) {
+                    Icon(
+                        tint = MaterialTheme.colors.secondary,
+                        imageVector = if (item.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                        contentDescription = "Favorites"
+                    )
+                }
+            }
 
+        }
     }
 }

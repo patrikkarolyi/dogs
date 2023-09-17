@@ -1,4 +1,4 @@
-package com.example.dogs.ui.custom_view
+package com.example.dogs.ui.common
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
