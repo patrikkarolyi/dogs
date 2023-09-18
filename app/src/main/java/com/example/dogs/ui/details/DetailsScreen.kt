@@ -17,6 +17,8 @@ import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,10 +40,12 @@ fun DetailScreen(
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val viewState by viewModel.uiState.collectAsState()
+    val currentBreedId by viewModel.currentBreedId.collectAsState()
 
     if (breedId.isNotBlank()) {
         LaunchedEffect(coroutineScope) {
-            viewModel.getImageUrls(breedId)
+            viewModel.refreshImageUrls(breedId = breedId)
             viewModel.errorMessage.collect { message ->
                 val snackbarResut = scaffoldState.snackbarHostState.showSnackbar(
                     message = message,
@@ -50,7 +54,7 @@ fun DetailScreen(
                 when (snackbarResut) {
                     SnackbarResult.Dismissed -> {}
                     SnackbarResult.ActionPerformed -> {
-                        viewModel.refreshImageUrls(breedId)
+                        viewModel.refreshImageUrls(breedId = breedId)
                     }
                 }
             }
@@ -82,7 +86,7 @@ fun DetailScreen(
                 }
                 Text(
                     modifier = Modifier.align(Alignment.Center),
-                    text = breedId,
+                    text = currentBreedId,
                     fontSize = 24.sp
                 )
             }
@@ -92,15 +96,16 @@ fun DetailScreen(
             modifier = Modifier
                 .padding(it)
         ) {
-            when (val state = viewModel.uiState) {
-                is Content -> DetailContent(
-                    newItems = state.result,
-                    onItemFavoriteClicked = { url, isFavorite ->
-                        viewModel.updateImageFavoriteById(breedId, url, isFavorite)
-                    }
-                )
-
-                Initial -> {}
+            viewState.let { state ->
+                when (state) {
+                    Initial -> {}
+                    is Content -> DetailContent(
+                        newItems = state.result,
+                        onItemFavoriteClicked = { url, isFavorite ->
+                            viewModel.updateImageFavoriteById(url, isFavorite)
+                        }
+                    )
+                }
             }
         }
     }

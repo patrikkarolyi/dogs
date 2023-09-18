@@ -33,7 +33,7 @@ class ImageRepository @Inject constructor(
         }
     }
 
-    fun getImagesByBreedId(breedId: String): List<RoomImageData> {
+    fun observeImagesByBreedId(breedId: String): Flow<List<RoomImageData>> {
         return diskDataSource.getImagesByBreedId(breedId)
     }
 

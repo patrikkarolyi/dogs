@@ -34,7 +34,7 @@ class DiskDataSource @Inject constructor(
         return imageDAO.getAllFavoriteImages()
     }
 
-    fun getImagesByBreedId(breedId: String): List<RoomImageData> {
+    fun getImagesByBreedId(breedId: String):  Flow<List<RoomImageData>> {
         return imageDAO.getImagesByBreedId(breedId)
     }
 

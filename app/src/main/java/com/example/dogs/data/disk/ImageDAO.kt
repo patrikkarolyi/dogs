@@ -13,7 +13,7 @@ interface ImageDAO {
 
     @Transaction
     @Query("SELECT * FROM images WHERE breedId=:breedId")
-    fun getImagesByBreedId(breedId: String): List<RoomImageData>
+    fun getImagesByBreedId(breedId: String):  Flow<List<RoomImageData>>
 
     @Transaction
     @Query("SELECT * FROM images WHERE url=:url")
