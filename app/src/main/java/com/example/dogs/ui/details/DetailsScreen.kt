@@ -2,9 +2,11 @@ package com.example.dogs.ui.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -14,6 +16,9 @@ import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,11 +32,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dogs.ui.common.DetailContent
+import com.example.dogs.ui.common.EmptyContent
 import com.example.dogs.ui.details.DetailViewState.Content
 import com.example.dogs.ui.details.DetailViewState.Initial
 import kotlinx.coroutines.CoroutineScope
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DetailScreen(
     viewModel: DetailsViewModel = viewModel(),
@@ -40,27 +47,16 @@ fun DetailScreen(
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
-    val viewState by viewModel.uiState.collectAsState()
     val currentBreedId by viewModel.currentBreedId.collectAsState()
+    val viewState by viewModel.uiState.collectAsState()
+    val refreshing = viewModel.isRefreshing
+    val pullRefreshState = rememberPullRefreshState(refreshing, { viewModel.refreshImageUrls() })
 
     if (breedId.isNotBlank()) {
         LaunchedEffect(coroutineScope) {
             viewModel.refreshImageUrls(breedId = breedId)
-            viewModel.errorMessage.collect { message ->
-                val snackbarResut = scaffoldState.snackbarHostState.showSnackbar(
-                    message = message,
-                    actionLabel = "Retry",
-                )
-                when (snackbarResut) {
-                    SnackbarResult.Dismissed -> {}
-                    SnackbarResult.ActionPerformed -> {
-                        viewModel.refreshImageUrls(breedId = breedId)
-                    }
-                }
-            }
         }
     }
-
 
     Scaffold(
         modifier = Modifier
@@ -94,17 +90,39 @@ fun DetailScreen(
     ) {
         Box(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(it)
+                .pullRefresh(pullRefreshState)
         ) {
             viewState.let { state ->
                 when (state) {
-                    Initial -> {}
+                    Initial -> EmptyContent()
                     is Content -> DetailContent(
                         newItems = state.result,
                         onItemFavoriteClicked = { url, isFavorite ->
                             viewModel.updateImageFavoriteById(url, isFavorite)
                         }
                     )
+                }
+            }
+            //TODO make pull to refresh work on EmptyContent
+            PullRefreshIndicator(
+                refreshing,
+                pullRefreshState,
+                Modifier.align(Alignment.TopCenter)
+            )
+            LaunchedEffect(coroutineScope) {
+                viewModel.errorMessage.collect { message ->
+                    val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                        message = message,
+                        actionLabel = "Retry",
+                    )
+                    when (snackbarResult) {
+                        SnackbarResult.Dismissed -> {}
+                        SnackbarResult.ActionPerformed -> {
+                            viewModel.refreshImageUrls()
+                        }
+                    }
                 }
             }
         }

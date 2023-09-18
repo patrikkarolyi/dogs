@@ -19,12 +19,16 @@ fun ListContent(
     newItems: List<RoomBreedData> = emptyList(),
     onItemClicked: (String) -> Unit,
 ) {
-    LazyColumn {
-        items(newItems) { item ->
-            ListItemContent(
-                item = item,
-                onItemClicked = onItemClicked,
-            )
+    if (newItems.isEmpty()) {
+        EmptyContent()
+    } else {
+        LazyColumn {
+            items(newItems) { item ->
+                ListItemContent(
+                    item = item,
+                    onItemClicked = onItemClicked,
+                )
+            }
         }
     }
 }

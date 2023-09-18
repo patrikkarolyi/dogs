@@ -31,12 +31,17 @@ fun DetailContent(
     newItems: List<RoomImageData> = emptyList(),
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
-    LazyColumn {
-        items(newItems) { item ->
-            DetailItemContent(
-                item = item,
-                onItemFavoriteClicked = onItemFavoriteClicked
-            )
+    if(newItems.isEmpty()){
+        EmptyContent()
+    }
+    else{
+        LazyColumn {
+            items(newItems) { item ->
+                DetailItemContent(
+                    item = item,
+                    onItemFavoriteClicked = onItemFavoriteClicked
+                )
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
 import com.example.dogs.data.disk.model.RoomBreedData
+import com.example.dogs.network.model.NetworkResult
 import com.example.dogs.ui.list.ListViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -54,17 +55,14 @@ class ListViewModel @Inject constructor(
         viewModelScope.launch {
             isRefreshing = true
             withContext(Dispatchers.IO) {
-                dataSource.downloadAllBreeds()
+                dataSource.downloadAllBreeds().let { result ->
+                    if(result !is NetworkResult){
+                        //TODO error handling
+                        errorMessage.emit(result.toString())
+                    }
+                }
             }
             isRefreshing = false
-        }
-    }
-
-    fun updateBreedFavoriteById(id: String, newIsFavorite: Boolean) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                dataSource.updateBreedFavoriteById(id, newIsFavorite)
-            }
         }
     }
 

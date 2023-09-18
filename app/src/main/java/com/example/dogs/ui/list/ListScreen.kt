@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dogs.navigation.Screen
+import com.example.dogs.ui.common.EmptyContent
 import com.example.dogs.ui.common.ListContent
 import com.example.dogs.ui.common.NavDrawer
 import com.example.dogs.ui.common.SearchBar
@@ -92,7 +93,7 @@ fun ListScreen(
             ) {
                 viewState.let { state ->
                     when (state) {
-                        ListViewState.Initial -> {}
+                        ListViewState.Initial -> EmptyContent()
                         is ListViewState.Content -> ListContent(
                             state.result,
                         ) { id -> navController.navigate(Screen.DetailScreen.withArgs(id)) }
@@ -106,11 +107,11 @@ fun ListScreen(
             }
             LaunchedEffect(coroutineScope) {
                 viewModel.errorMessage.collect { message ->
-                    val snackbarResut = scaffoldState.snackbarHostState.showSnackbar(
+                    val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
                         message = message,
                         actionLabel = "Retry",
                     )
-                    when (snackbarResut) {
+                    when (snackbarResult) {
                         SnackbarResult.Dismissed -> {}
                         SnackbarResult.ActionPerformed -> {
                             viewModel.refreshAllBreeds()
