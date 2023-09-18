@@ -31,19 +31,19 @@ import com.example.dogs.ui.theme.DogsTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun MySearchToolbar(
+fun SearchBar(
     modifier: Modifier = Modifier,
     onSearchTriggered: (String) -> Unit,
+    text: String = "",
 ) {
-    var searchQuery by rememberSaveable { mutableStateOf("") }
-
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    var searchQuery by rememberSaveable { mutableStateOf(text) }
+
     OutlinedTextField(
         label = {
-            Text(
-                text = stringResource(R.string.filter_input_hint),
-            )
+            Text(text = stringResource(R.string.filter_input_hint))
         },
         leadingIcon = {
             Icon(
@@ -57,7 +57,7 @@ fun MySearchToolbar(
                 IconButton(
                     onClick = {
                         searchQuery = ""
-                        onSearchTriggered("")
+                        onSearchTriggered(searchQuery)
                     },
                 ) {
                     Icon(
@@ -68,15 +68,14 @@ fun MySearchToolbar(
                 }
             }
         },
+        value = searchQuery,
+        maxLines = 1,
+        singleLine = true,
         onValueChange = {
             if (!it.contains("\n")) {
                 searchQuery = it
             }
         },
-        modifier = modifier
-            .padding(8.dp)
-            .focusRequester(focusRequester),
-        value = searchQuery,
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Search,
         ),
@@ -86,8 +85,9 @@ fun MySearchToolbar(
                 onSearchTriggered(searchQuery)
             },
         ),
-        maxLines = 1,
-        singleLine = true,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .padding(8.dp),
     )
 }
 
@@ -95,7 +95,7 @@ fun MySearchToolbar(
 @Composable
 private fun SearchToolbarPreview() {
     DogsTheme {
-        MySearchToolbar(
+        SearchBar(
             onSearchTriggered = {},
         )
     }

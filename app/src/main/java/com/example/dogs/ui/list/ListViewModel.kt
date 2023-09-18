@@ -25,43 +25,30 @@ import javax.inject.Inject
 @HiltViewModel
 class ListViewModel @Inject constructor(
     private val dataSource: DogRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val currentFilter = savedStateHandle.getStateFlow("current_filter", "")
+    val currentFilter = savedStateHandle.getStateFlow("current_filter_list", "")
 
-    val uiState: StateFlow<ListViewState> =
-        combine(
-            dataSource.observeAllBreeds(),
-            currentFilter,
-        ) { list, filter ->
-            list.filter { item -> item.id.contains(filter) }
-        }
-            .map<List<RoomBreedData>, ListViewState>(ListViewState::Content)
-            .onStart {
-                refreshAllBreeds()
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = Initial,
-            )
-
+    val uiState: StateFlow<ListViewState> = combine(
+        dataSource.observeAllBreeds(),
+        currentFilter,
+    ) { list, filter ->
+        list.filter { item -> item.id.contains(filter) }
+    }
+        .map<List<RoomBreedData>, ListViewState>(ListViewState::Content)
+        .onStart { refreshAllBreeds() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = Initial,
+        )
 
     var isRefreshing by mutableStateOf(false)
         private set
 
     var errorMessage = MutableSharedFlow<String>()
         private set
-
-
-    fun getAllBreeds() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                dataSource.observeAllBreeds()
-            }
-        }
-    }
 
     fun refreshAllBreeds() {
         viewModelScope.launch {
@@ -78,14 +65,12 @@ class ListViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 dataSource.updateBreedFavoriteById(id, newIsFavorite)
             }
-            getAllBreeds()
         }
     }
 
     fun updateFilters(filter: String) {
         viewModelScope.launch {
-            savedStateHandle["current_filter"] = filter
-            getAllBreeds()
+            savedStateHandle["current_filter_list"] = filter
         }
     }
 }

@@ -26,7 +26,6 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.dogs.R
 import com.example.dogs.data.disk.model.RoomImageData
 
-
 @Composable
 fun DetailContent(
     newItems: List<RoomImageData> = emptyList(),
@@ -49,38 +48,36 @@ fun DetailItemContent(
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
     Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
             GlideImage(
                 model = item.url,
                 contentDescription = "image",
                 contentScale = ContentScale.FillWidth,
+                requestBuilderTransform = { it.placeholder(R.drawable.ic_placeholder) },
                 modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                it
-                    .placeholder(R.drawable.place_holder)
-            }
+                    .fillMaxSize(),
+            )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(2.dp)
 
             ) {
                 Text(
+                    text = item.breedId,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .padding(start = 8.dp),
-                    text = item.breedId,
                 )
                 IconButton(
+                    onClick = { onItemFavoriteClicked(item.url, !item.isFavorite) },
                     modifier = Modifier
                         .align(Alignment.CenterEnd),
-                    onClick = { onItemFavoriteClicked(item.url, !item.isFavorite) }
                 ) {
                     Icon(
                         tint = MaterialTheme.colors.secondary,

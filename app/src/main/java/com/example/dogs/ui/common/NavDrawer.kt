@@ -23,10 +23,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun MyNavDrawerView(
+fun NavDrawer(
     drawerState: DrawerState,
     navController: NavController,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()

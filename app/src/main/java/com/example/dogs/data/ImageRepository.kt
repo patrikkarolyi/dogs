@@ -6,6 +6,7 @@ import com.example.dogs.network.NetworkDataSource
 import com.example.dogs.network.model.ImagesData
 import com.example.dogs.network.model.NetworkResponse
 import com.example.dogs.network.model.NetworkResult
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ImageRepository @Inject constructor(
@@ -36,7 +37,7 @@ class ImageRepository @Inject constructor(
         return diskDataSource.getImagesByBreedId(breedId)
     }
 
-    fun getAllFavoriteImages(): List<RoomImageData> {
+    fun observeAllFavoriteImages(): Flow<List<RoomImageData>> {
         return diskDataSource.getAllFavoriteImages()
     }
 

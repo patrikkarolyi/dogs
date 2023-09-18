@@ -1,8 +1,6 @@
 package com.example.dogs.ui.list
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,8 +32,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dogs.navigation.Screen
 import com.example.dogs.ui.common.ListContent
-import com.example.dogs.ui.common.MyNavDrawerView
-import com.example.dogs.ui.common.MySearchToolbar
+import com.example.dogs.ui.common.NavDrawer
+import com.example.dogs.ui.common.SearchBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -51,15 +49,13 @@ fun ListScreen(
     val pullRefreshState = rememberPullRefreshState(refreshing, { viewModel.refreshAllBreeds() })
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewState by viewModel.uiState.collectAsState()
+    val filter by viewModel.currentFilter.collectAsState()
 
-    MyNavDrawerView(
-        modifier = Modifier,
+    NavDrawer(
         drawerState = drawerState,
         navController = navController,
     ) {
         Scaffold(
-            modifier = Modifier
-                .background(MaterialTheme.colors.background),
             scaffoldState = scaffoldState,
             topBar = {
                 Row(
@@ -81,34 +77,27 @@ fun ListScreen(
                             contentDescription = "Menu"
                         )
                     }
-                    MySearchToolbar(
-                        onSearchTriggered = { viewModel.updateFilters(it) }
+                    SearchBar(
+                        onSearchTriggered = { viewModel.updateFilters(it) },
+                        text = filter,
                     )
                 }
             },
-            bottomBar = {
-/*                BottomBar(
-                    navController = navController,
-                    modifier = Modifier,
-                )*/
-            }
         ) {
             Box(
                 modifier = Modifier
+                    .fillMaxSize()
                     .padding(it)
                     .pullRefresh(pullRefreshState)
             ) {
                 viewState.let { state ->
                     when (state) {
-                        ListViewState.Initial -> {
-                            Column(modifier = Modifier.fillMaxSize()) {}
-                        }
+                        ListViewState.Initial -> {}
                         is ListViewState.Content -> ListContent(
                             state.result,
                         ) { id -> navController.navigate(Screen.DetailScreen.withArgs(id)) }
                     }
                 }
-
                 PullRefreshIndicator(
                     refreshing,
                     pullRefreshState,
@@ -116,7 +105,6 @@ fun ListScreen(
                 )
             }
             LaunchedEffect(coroutineScope) {
-                viewModel.getAllBreeds()
                 viewModel.errorMessage.collect { message ->
                     val snackbarResut = scaffoldState.snackbarHostState.showSnackbar(
                         message = message,

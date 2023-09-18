@@ -2,13 +2,14 @@ package com.example.dogs.data.disk
 
 import androidx.room.*
 import com.example.dogs.data.disk.model.RoomImageData
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ImageDAO {
 
     @Transaction
     @Query("SELECT * FROM images WHERE isFavorite=1")
-    fun getAllFavoriteImages(): List<RoomImageData>
+    fun getAllFavoriteImages(): Flow<List<RoomImageData>>
 
     @Transaction
     @Query("SELECT * FROM images WHERE breedId=:breedId")

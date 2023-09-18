@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.dogs.data.disk.model.RoomBreedData
+import com.example.dogs.util.capFirst
 
 
 @Composable
@@ -18,8 +19,7 @@ fun ListContent(
     newItems: List<RoomBreedData> = emptyList(),
     onItemClicked: (String) -> Unit,
 ) {
-    LazyColumn(
-    ) {
+    LazyColumn {
         items(newItems) { item ->
             ListItemContent(
                 item = item,
@@ -43,9 +43,9 @@ fun ListItemContent(
             },
     ) {
         Text(
+            text = "${item.subBreedName.capFirst()} ${item.breedName.capFirst()}".trim(),
             modifier = Modifier
                 .padding(16.dp),
-            text = "${item.subBreedName} ${item.breedName}".trim(),
         )
     }
 }
