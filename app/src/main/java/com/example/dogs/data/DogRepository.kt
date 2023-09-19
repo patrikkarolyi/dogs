@@ -16,10 +16,6 @@ class DogRepository @Inject constructor(
         return diskDataSource.getAllBreeds()
     }
 
-    fun getAllFavoriteBreeds(): Flow<List<RoomBreedData>> {
-        return diskDataSource.getAllFavoriteBreeds()
-    }
-
     suspend fun downloadAllBreeds(): NetworkResponse<AllBreedData> {
         return when (val networkResponse = networkDataSource.getAllBreeds()) {
             is NetworkResult -> {
@@ -58,15 +54,7 @@ class DogRepository @Inject constructor(
         )
     }
 
-    fun updateBreedFavoriteById(id: String, newIsFavorite: Boolean) {
-        val breedItem = diskDataSource.getBreedById(id)
-        diskDataSource.updateBreed(
-            RoomBreedData(
-                id = breedItem.id,
-                breedName = breedItem.breedName,
-                subBreedName = breedItem.subBreedName,
-                isFavorite = newIsFavorite
-            )
-        )
+    fun getDogById(breedId: String): RoomBreedData {
+        return diskDataSource.getBreedById(breedId)
     }
 }

@@ -13,13 +13,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarResult
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,7 +28,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dogs.ui.common.DetailContent
@@ -48,10 +47,10 @@ fun DetailScreen(
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
-    val currentBreedId by viewModel.currentBreedId.collectAsState()
     val viewState by viewModel.uiState.collectAsState()
     val refreshing = viewModel.isRefreshing
     val pullRefreshState = rememberPullRefreshState(refreshing, {viewModel.refreshImageUrls() })
+    val title = viewModel.title
 
     if (breedId.isNotBlank()) {
         LaunchedEffect(coroutineScope) {
@@ -94,9 +93,9 @@ fun DetailScreen(
                     )
                 }
                 Text(
+                    text = title,
+                    style = MaterialTheme.typography.h5,
                     modifier = Modifier.align(Alignment.Center),
-                    text = currentBreedId,
-                    fontSize = 24.sp
                 )
             }
         }

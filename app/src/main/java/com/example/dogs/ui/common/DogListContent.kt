@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.dogs.data.disk.model.RoomBreedData
-import com.example.dogs.util.capFirst
+import com.example.dogs.util.fullName
 
 
 @Composable
@@ -47,7 +47,7 @@ fun ListItemContent(
             },
     ) {
         Text(
-            text = "${item.subBreedName.capFirst()} ${item.breedName.capFirst()}".trim(),
+            text = item.fullName(),
             modifier = Modifier
                 .padding(16.dp),
         )

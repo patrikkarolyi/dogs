@@ -24,11 +24,11 @@ import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.dogs.R
-import com.example.dogs.data.disk.model.RoomImageData
+import com.example.dogs.ui.common.model.ImageViewState
 
 @Composable
 fun DetailContent(
-    newItems: List<RoomImageData> = emptyList(),
+    newItems: List<ImageViewState> = emptyList(),
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
     if(newItems.isEmpty()){
@@ -49,7 +49,7 @@ fun DetailContent(
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun DetailItemContent(
-    item: RoomImageData,
+    item: ImageViewState,
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
     Card(
@@ -74,7 +74,7 @@ fun DetailItemContent(
 
             ) {
                 Text(
-                    text = item.breedId,
+                    text = item.fullName,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .padding(start = 8.dp),
