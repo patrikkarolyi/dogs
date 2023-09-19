@@ -36,6 +36,7 @@ import com.example.dogs.ui.common.ListContent
 import com.example.dogs.ui.common.NavDrawer
 import com.example.dogs.ui.common.SearchBar
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -51,6 +52,21 @@ fun ListScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewState by viewModel.uiState.collectAsState()
     val filter by viewModel.currentFilter.collectAsState()
+
+    LaunchedEffect(coroutineScope) {
+        viewModel.errorMessage.collectLatest { message ->
+            val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = "retry"
+            )
+            when (snackbarResult) {
+                SnackbarResult.Dismissed -> {}
+                SnackbarResult.ActionPerformed -> {
+                    viewModel.refreshAllBreeds()
+                }
+            }
+        }
+    }
 
     NavDrawer(
         drawerState = drawerState,
@@ -100,24 +116,10 @@ fun ListScreen(
                     }
                 }
                 PullRefreshIndicator(
-                    refreshing,
-                    pullRefreshState,
-                    Modifier.align(Alignment.TopCenter)
+                    refreshing = refreshing,
+                    state = pullRefreshState,
+                    modifier = Modifier.align(Alignment.TopCenter)
                 )
-            }
-            LaunchedEffect(coroutineScope) {
-                viewModel.errorMessage.collect { message ->
-                    val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                        message = message,
-                        actionLabel = "Retry",
-                    )
-                    when (snackbarResult) {
-                        SnackbarResult.Dismissed -> {}
-                        SnackbarResult.ActionPerformed -> {
-                            viewModel.refreshAllBreeds()
-                        }
-                    }
-                }
             }
         }
     }

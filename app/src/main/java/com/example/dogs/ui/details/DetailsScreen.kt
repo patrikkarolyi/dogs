@@ -36,6 +36,7 @@ import com.example.dogs.ui.common.EmptyContent
 import com.example.dogs.ui.details.DetailViewState.Content
 import com.example.dogs.ui.details.DetailViewState.Initial
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -50,11 +51,23 @@ fun DetailScreen(
     val currentBreedId by viewModel.currentBreedId.collectAsState()
     val viewState by viewModel.uiState.collectAsState()
     val refreshing = viewModel.isRefreshing
-    val pullRefreshState = rememberPullRefreshState(refreshing, { viewModel.refreshImageUrls() })
+    val pullRefreshState = rememberPullRefreshState(refreshing, {viewModel.refreshImageUrls() })
 
     if (breedId.isNotBlank()) {
         LaunchedEffect(coroutineScope) {
             viewModel.refreshImageUrls(breedId = breedId)
+            viewModel.errorMessage.collectLatest { message ->
+                val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                    message = message,
+                    actionLabel = "retry"
+                )
+                when (snackbarResult) {
+                    SnackbarResult.Dismissed -> {}
+                    SnackbarResult.ActionPerformed -> {
+                        viewModel.refreshImageUrls()
+                    }
+                }
+            }
         }
     }
 
@@ -111,20 +124,6 @@ fun DetailScreen(
                 pullRefreshState,
                 Modifier.align(Alignment.TopCenter)
             )
-            LaunchedEffect(coroutineScope) {
-                viewModel.errorMessage.collect { message ->
-                    val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                        message = message,
-                        actionLabel = "Retry",
-                    )
-                    when (snackbarResult) {
-                        SnackbarResult.Dismissed -> {}
-                        SnackbarResult.ActionPerformed -> {
-                            viewModel.refreshImageUrls()
-                        }
-                    }
-                }
-            }
         }
     }
 }

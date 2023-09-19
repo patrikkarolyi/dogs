@@ -8,4 +8,5 @@
     <string name="images">Images</string>
     <string name="favorites">Favorites</string>
     <string name="all">All</string>
+    <string name="no_content">No content.</string>
 </resources>

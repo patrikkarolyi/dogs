@@ -13,7 +13,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -49,20 +52,29 @@ class DetailsViewModel @Inject constructor(
 
     private suspend fun downloadImages() {
         dataSource.downloadImagesByBreedId(currentBreedId.value).let { result ->
-            if(result !is NetworkResult){
+            if (result !is NetworkResult) {
                 //TODO error handling
                 errorMessage.emit(result.toString())
             }
         }
     }
 
-    private suspend fun getAllImages() {
-        //TODO make sure this works
-        dataSource.observeImagesByBreedId(currentBreedId.value)
-            .map<List<RoomImageData>, DetailViewState>(DetailViewState::Content)
-            .collect {
-                _uiState.value = it
+    private fun getAllImages() {
+        //TODO check this
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                dataSource.observeImagesByBreedId(currentBreedId.value)
+                    .map<List<RoomImageData>, DetailViewState>(DetailViewState::Content)
+                    .stateIn(
+                        scope = viewModelScope,
+                        started = SharingStarted.WhileSubscribed(5_000),
+                        initialValue = DetailViewState.Initial,
+                    )
+                    .collectLatest {
+                        _uiState.value = it
+                    }
             }
+        }
     }
 
     fun updateImageFavoriteById(url: String, newIsFavorite: Boolean) {
