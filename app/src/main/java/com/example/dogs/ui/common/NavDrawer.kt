@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -48,7 +49,10 @@ fun NavDrawer(
 
                     NavigationDrawerItem(
                         label = {
-                            Text(text = stringResource(id = item.titleRes))
+                            Text(
+                                text = stringResource(id = item.titleRes),
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
                         },
                         icon = {
                             Icon(
@@ -61,7 +65,6 @@ fun NavDrawer(
                         onClick = {
                             coroutineScope.launch {
                                 drawerState.close()
-
                             }
                             if (!isSelected) {
                                 navController.navigate(item.route) {

@@ -7,23 +7,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.SnackbarResult
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,35 +34,31 @@ import com.example.dogs.ui.details.DetailViewState.Content
 import com.example.dogs.ui.details.DetailViewState.Initial
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun DetailScreen(
     viewModel: DetailsViewModel = viewModel(),
     navController: NavController,
     breedId: String
 ) {
-    val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val viewState by viewModel.uiState.collectAsState()
     val refreshing = viewModel.isRefreshing
-    val pullRefreshState = rememberPullRefreshState(refreshing, {viewModel.refreshImageUrls() })
+    val snackbarHostState = remember { SnackbarHostState() }
+    val pullRefreshState = rememberPullRefreshState(refreshing, viewModel::refreshImageUrls)
     val title = viewModel.title
 
     if (breedId.isNotBlank()) {
         LaunchedEffect(coroutineScope) {
             viewModel.refreshImageUrls(breedId = breedId)
             viewModel.errorMessage.collectLatest { message ->
-                val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                    message = message,
-                    actionLabel = "retry"
-                )
-                when (snackbarResult) {
-                    SnackbarResult.Dismissed -> {}
-                    SnackbarResult.ActionPerformed -> {
-                        viewModel.refreshImageUrls()
-                    }
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message
+                    )
                 }
             }
         }
@@ -72,8 +66,7 @@ fun DetailScreen(
 
     Scaffold(
         modifier = Modifier
-            .background(MaterialTheme.colors.background),
-        scaffoldState = scaffoldState,
+            .background(MaterialTheme.colorScheme.background),
         topBar = {
             Box(
                 modifier = Modifier
@@ -87,14 +80,15 @@ fun DetailScreen(
                     }
                 ) {
                     Icon(
-                        tint = MaterialTheme.colors.secondary,
+                        tint = MaterialTheme.colorScheme.secondary,
                         imageVector = Icons.Rounded.ArrowBack,
                         contentDescription = "Back"
                     )
                 }
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.h5,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.align(Alignment.Center),
                 )
             }
@@ -104,7 +98,6 @@ fun DetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
-                .pullRefresh(pullRefreshState)
         ) {
             viewState.let { state ->
                 when (state) {

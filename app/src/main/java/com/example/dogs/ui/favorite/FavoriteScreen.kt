@@ -7,15 +7,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -38,7 +36,6 @@ fun FavImgScreen(
     viewModel: FavoriteViewModel = viewModel(),
     navController: NavController,
 ) {
-    val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewState by viewModel.uiState.collectAsState()
@@ -51,8 +48,7 @@ fun FavImgScreen(
     ) {
         Scaffold(
             modifier = Modifier
-                .background(MaterialTheme.colors.background),
-            scaffoldState = scaffoldState,
+                .background(MaterialTheme.colorScheme.background),
             topBar = {
                 Row(
                     modifier = Modifier
@@ -69,7 +65,7 @@ fun FavImgScreen(
                         }
                     ) {
                         Icon(
-                            tint = MaterialTheme.colors.secondary,
+                            tint = MaterialTheme.colorScheme.secondary,
                             imageVector = Icons.Default.Menu,
                             contentDescription = "Menu"
                         )

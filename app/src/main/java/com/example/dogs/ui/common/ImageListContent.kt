@@ -6,15 +6,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,10 +30,9 @@ fun DetailContent(
     newItems: List<ImageViewState> = emptyList(),
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
-    if(newItems.isEmpty()){
+    if (newItems.isEmpty()) {
         EmptyContent()
-    }
-    else{
+    } else {
         LazyColumn {
             items(newItems) { item ->
                 DetailItemContent(
@@ -62,7 +61,11 @@ fun DetailItemContent(
                 model = item.url,
                 contentDescription = "image",
                 contentScale = ContentScale.FillWidth,
-                requestBuilderTransform = { it.placeholder(R.drawable.ic_placeholder) },
+                requestBuilderTransform = {
+                    it
+                        .placeholder(R.drawable.ic_placeholder)
+                        .error(R.drawable.ic_error)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -84,7 +87,7 @@ fun DetailItemContent(
                         .align(Alignment.CenterEnd),
                 ) {
                     Icon(
-                        tint = MaterialTheme.colors.secondary,
+                        tint = MaterialTheme.colorScheme.secondary,
                         imageVector = if (item.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                         contentDescription = "Favorites"
                     )

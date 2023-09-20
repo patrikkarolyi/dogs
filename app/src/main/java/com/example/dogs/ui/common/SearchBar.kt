@@ -3,14 +3,14 @@ package com.example.dogs.ui.common
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +49,6 @@ fun SearchBar(
             Icon(
                 imageVector = Icons.Rounded.Search,
                 contentDescription = "Search",
-                tint = MaterialTheme.colors.secondary,
             )
         },
         trailingIcon = {
@@ -63,7 +62,6 @@ fun SearchBar(
                     Icon(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = "Close",
-                        tint = MaterialTheme.colors.secondary,
                     )
                 }
             }
@@ -85,6 +83,7 @@ fun SearchBar(
                 onSearchTriggered(searchQuery)
             },
         ),
+        colors = OutlinedTextFieldDefaults.colors(),
         modifier = modifier
             .focusRequester(focusRequester)
             .padding(8.dp),

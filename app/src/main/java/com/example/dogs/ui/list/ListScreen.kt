@@ -6,24 +6,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.SnackbarResult
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -45,25 +44,20 @@ fun ListScreen(
     viewModel: ListViewModel = viewModel(),
     navController: NavController,
 ) {
-    val scaffoldState: ScaffoldState = rememberScaffoldState()
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val refreshing = viewModel.isRefreshing
-    val pullRefreshState = rememberPullRefreshState(refreshing, { viewModel.refreshAllBreeds() })
+    val pullRefreshState = rememberPullRefreshState(refreshing, {})
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewState by viewModel.uiState.collectAsState()
     val filter by viewModel.currentFilter.collectAsState()
 
     LaunchedEffect(coroutineScope) {
         viewModel.errorMessage.collectLatest { message ->
-            val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                message = message,
-                actionLabel = "retry"
-            )
-            when (snackbarResult) {
-                SnackbarResult.Dismissed -> {}
-                SnackbarResult.ActionPerformed -> {
-                    viewModel.refreshAllBreeds()
-                }
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message
+                )
             }
         }
     }
@@ -73,7 +67,7 @@ fun ListScreen(
         navController = navController,
     ) {
         Scaffold(
-            scaffoldState = scaffoldState,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 Row(
                     verticalAlignment = CenterVertically,
@@ -89,7 +83,7 @@ fun ListScreen(
                         }
                     ) {
                         Icon(
-                            tint = MaterialTheme.colors.secondary,
+                            tint = MaterialTheme.colorScheme.secondary,
                             imageVector = Icons.Default.Menu,
                             contentDescription = "Menu"
                         )
@@ -105,7 +99,6 @@ fun ListScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
-                    .pullRefresh(pullRefreshState)
             ) {
                 viewState.let { state ->
                     when (state) {
