@@ -30,11 +30,15 @@ class DiskDataSource @Inject constructor(
         return dogsDAO.updateBreed(data)
     }
 
+    fun getAllImages(): Flow<List<RoomImageData>> {
+        return imageDAO.getAllImages()
+    }
+
     fun getAllFavoriteImages(): Flow<List<RoomImageData>> {
         return imageDAO.getAllFavoriteImages()
     }
 
-    fun getImagesByBreedId(breedId: String):  Flow<List<RoomImageData>> {
+    fun getImagesByBreedId(breedId: String):  List<RoomImageData> {
         return imageDAO.getImagesByBreedId(breedId)
     }
 

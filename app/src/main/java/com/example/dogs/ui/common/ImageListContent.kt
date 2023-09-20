@@ -2,7 +2,6 @@ package com.example.dogs.ui.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -65,7 +64,7 @@ fun DetailItemContent(
                 contentScale = ContentScale.FillWidth,
                 requestBuilderTransform = { it.placeholder(R.drawable.ic_placeholder) },
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxWidth()
             )
             Box(
                 modifier = Modifier

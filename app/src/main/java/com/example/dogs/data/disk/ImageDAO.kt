@@ -8,12 +8,16 @@ import kotlinx.coroutines.flow.Flow
 interface ImageDAO {
 
     @Transaction
+    @Query("SELECT * FROM images")
+    fun getAllImages(): Flow<List<RoomImageData>>
+
+    @Transaction
     @Query("SELECT * FROM images WHERE isFavorite=1")
     fun getAllFavoriteImages(): Flow<List<RoomImageData>>
 
     @Transaction
     @Query("SELECT * FROM images WHERE breedId=:breedId")
-    fun getImagesByBreedId(breedId: String):  Flow<List<RoomImageData>>
+    fun getImagesByBreedId(breedId: String):  List<RoomImageData>
 
     @Transaction
     @Query("SELECT * FROM images WHERE url=:url")

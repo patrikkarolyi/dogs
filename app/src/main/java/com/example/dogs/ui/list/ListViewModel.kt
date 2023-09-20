@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
 import com.example.dogs.data.disk.model.RoomBreedData
+import com.example.dogs.network.model.NetworkResponse
 import com.example.dogs.network.model.NetworkResult
 import com.example.dogs.ui.list.ListViewState.Initial
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,19 +32,20 @@ class ListViewModel @Inject constructor(
 
     val currentFilter = savedStateHandle.getStateFlow("current_filter_list", "")
 
-    val uiState: StateFlow<ListViewState> = combine(
-        dataSource.observeAllBreeds(),
-        currentFilter,
-    ) { list, filter ->
-        list.filter { item -> item.id.contains(filter) }
-    }
-        .map<List<RoomBreedData>, ListViewState>(ListViewState::Content)
-        .onStart { refreshAllBreeds() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = Initial,
-        )
+    val uiState: StateFlow<ListViewState> =
+        combine(
+            dataSource.observeAllBreeds(),
+            currentFilter,
+        ) { list, filter ->
+            list.filter { item -> item.id.contains(filter) }
+        }
+            .map<List<RoomBreedData>, ListViewState>(ListViewState::Content)
+            .onStart { refreshAllBreeds() }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = Initial,
+            )
 
     var isRefreshing by mutableStateOf(false)
         private set
@@ -55,12 +57,7 @@ class ListViewModel @Inject constructor(
         viewModelScope.launch {
             isRefreshing = true
             withContext(Dispatchers.IO) {
-                dataSource.downloadAllBreeds().let { result ->
-                    if(result !is NetworkResult){
-                        //TODO error handling
-                        errorMessage.emit(result.toString())
-                    }
-                }
+                dataSource.downloadAllBreeds().handleError()
             }
             isRefreshing = false
         }
@@ -69,6 +66,15 @@ class ListViewModel @Inject constructor(
     fun updateFilters(filter: String) {
         viewModelScope.launch {
             savedStateHandle["current_filter_list"] = filter
+        }
+    }
+
+    private fun NetworkResponse<*>.handleError() {
+        if (this !is NetworkResult) {
+            viewModelScope.launch {
+                //TODO error handling
+                errorMessage.emit(this.toString())
+            }
         }
     }
 }

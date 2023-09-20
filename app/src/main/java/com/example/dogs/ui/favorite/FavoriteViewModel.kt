@@ -31,9 +31,9 @@ class FavoriteViewModel @Inject constructor(
     val uiState: StateFlow<FavoriteViewState> =
         combine(
             imageDataSource.observeAllFavoriteImages(),
-            currentFilter,
-            dogDataSource.observeAllBreeds()
-        ) { images, filter, dogs ->
+            dogDataSource.observeAllBreeds(),
+            currentFilter
+        ) { images, dogs, filter ->
             images
                 .filter { item -> item.breedId.contains(filter) }
                 .map { roomItem ->
