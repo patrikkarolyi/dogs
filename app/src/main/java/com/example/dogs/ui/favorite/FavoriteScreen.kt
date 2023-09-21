@@ -21,7 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.dogs.ui.common.DetailContent
 import com.example.dogs.ui.common.NavDrawer
@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun FavImgScreen(
-    viewModel: FavoriteViewModel = viewModel(),
+    viewModel: FavoriteViewModel = hiltViewModel(),
     navController: NavController,
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()

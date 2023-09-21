@@ -27,7 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.dogs.navigation.Screen
 import com.example.dogs.ui.common.EmptyContent
@@ -37,11 +36,12 @@ import com.example.dogs.ui.common.SearchBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ListScreen(
-    viewModel: ListViewModel = viewModel(),
+    viewModel: ListViewModel = hiltViewModel(),
     navController: NavController,
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()

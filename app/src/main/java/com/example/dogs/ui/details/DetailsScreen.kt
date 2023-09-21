@@ -26,7 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.dogs.ui.common.DetailContent
 import com.example.dogs.ui.common.EmptyContent
@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun DetailScreen(
-    viewModel: DetailsViewModel = viewModel(),
+    viewModel: DetailsViewModel = hiltViewModel(),
     navController: NavController,
     breedId: String
 ) {
