@@ -1,9 +1,7 @@
 package com.example.dogs.ui.favorite
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -26,8 +24,6 @@ import androidx.navigation.NavController
 import com.example.dogs.ui.common.DetailContent
 import com.example.dogs.ui.common.NavDrawer
 import com.example.dogs.ui.common.SearchBar
-import com.example.dogs.ui.favorite.FavoriteViewState.Content
-import com.example.dogs.ui.favorite.FavoriteViewState.Initial
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -80,19 +76,12 @@ fun FavImgScreen(
                 modifier = Modifier
                     .padding(it)
             ) {
-                viewState.let { state ->
-                    when (state) {
-                        is Content -> DetailContent(
-                            newItems = state.result,
-                            onItemFavoriteClicked = { url, isFavorite ->
-                                viewModel.updateImageFavoriteById(url, isFavorite)
-                            }
-                        )
-                        Initial -> {
-                            Column(modifier = Modifier.fillMaxSize()) {}
-                        }
+                DetailContent(
+                    newItems = viewState.result,
+                    onItemFavoriteClicked = { url, isFavorite ->
+                        viewModel.updateImageFavoriteById(url, isFavorite)
                     }
-                }
+                )
             }
         }
     }

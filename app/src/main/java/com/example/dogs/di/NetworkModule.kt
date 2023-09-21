@@ -1,7 +1,7 @@
 package com.example.dogs.di
 
 import android.content.Context
-import com.example.dogs.network.DogAPI
+import com.example.dogs.data.network.DogAPI
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module

@@ -1,8 +1,7 @@
 package com.example.dogs.ui.list
 
-import com.example.dogs.data.disk.model.RoomBreedData
+import com.example.dogs.data.presentation.DogPresentationModel
 
-sealed class ListViewState {
-    object Initial : ListViewState()
-    data class Content(val result: List<RoomBreedData>) : ListViewState()
-}
+data class ListViewContent(
+    val result: List<DogPresentationModel> = emptyList()
+)

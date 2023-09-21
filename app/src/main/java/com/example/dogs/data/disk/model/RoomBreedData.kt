@@ -2,6 +2,7 @@ package com.example.dogs.data.disk.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.dogs.util.capFirst
 
 @Entity(tableName = "Breeds")
 data class RoomBreedData(
@@ -11,3 +12,5 @@ data class RoomBreedData(
     val subBreedName: String,
     val isFavorite: Boolean
 )
+
+fun RoomBreedData.fullName() = "${this.subBreedName.capFirst()} ${this.breedName.capFirst()}".trim()

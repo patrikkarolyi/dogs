@@ -1,8 +1,8 @@
-package com.example.dogs.network
+package com.example.dogs.data.network
 
-import com.example.dogs.network.model.AllBreedData
-import com.example.dogs.network.model.ImageData
-import com.example.dogs.network.model.ImagesData
+import com.example.dogs.data.network.model.AllBreedData
+import com.example.dogs.data.network.model.ImageData
+import com.example.dogs.data.network.model.ImagesData
 import retrofit2.http.GET
 import retrofit2.http.Path
 

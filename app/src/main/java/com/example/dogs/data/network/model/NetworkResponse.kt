@@ -1,4 +1,4 @@
-package com.example.dogs.network.model
+package com.example.dogs.data.network.model
 
 /**
  *                           NetworkResult<T>

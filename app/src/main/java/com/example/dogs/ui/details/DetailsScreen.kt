@@ -28,9 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.dogs.ui.common.DetailContent
-import com.example.dogs.ui.common.EmptyContent
-import com.example.dogs.ui.details.DetailViewState.Content
-import com.example.dogs.ui.details.DetailViewState.Initial
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -41,14 +38,14 @@ import kotlinx.coroutines.launch
 fun DetailScreen(
     viewModel: DetailsViewModel = hiltViewModel(),
     navController: NavController,
-    breedId: String
+    breedId: String,
+    title: String
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val viewState by viewModel.uiState.collectAsState()
     val refreshing = viewModel.isRefreshing
     val snackbarHostState = remember { SnackbarHostState() }
     val pullRefreshState = rememberPullRefreshState(refreshing, viewModel::refreshImageUrls)
-    val title = viewModel.title
 
     if (breedId.isNotBlank()) {
         LaunchedEffect(coroutineScope) {
@@ -97,17 +94,12 @@ fun DetailScreen(
                 .fillMaxSize()
                 .padding(it)
         ) {
-            viewState.let { state ->
-                when (state) {
-                    Initial -> EmptyContent()
-                    is Content -> DetailContent(
-                        newItems = state.result,
-                        onItemFavoriteClicked = { url, isFavorite ->
-                            viewModel.updateImageFavoriteById(url, isFavorite)
-                        }
-                    )
+            DetailContent(
+                newItems = viewState.result,
+                onItemFavoriteClicked = { url, isFavorite ->
+                    viewModel.updateImageFavoriteById(url, isFavorite)
                 }
-            }
+            )
             //TODO make pull to refresh work on EmptyContent
             PullRefreshIndicator(
                 refreshing,

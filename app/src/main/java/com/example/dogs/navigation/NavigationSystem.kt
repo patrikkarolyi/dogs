@@ -27,16 +27,21 @@ fun NavigationSystem() {
         }
 
         composable(
-            route = Screen.DetailScreen.route + "/{name}",
+            route = Screen.DetailScreen.route + "/{breedId}/{title}",
             arguments = listOf(
-                navArgument("name"){
+                navArgument("breedId"){
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument("title"){
                     type = NavType.StringType
                     defaultValue = ""
                 }
             )){entry ->
             DetailScreen(
                 navController = navController,
-                breedId = entry.arguments?.getString("name") ?: ""
+                breedId = entry.arguments?.getString("breedId") ?: "",
+                title = entry.arguments?.getString("title") ?: "",
             )
         }
 

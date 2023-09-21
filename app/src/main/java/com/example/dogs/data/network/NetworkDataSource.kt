@@ -1,8 +1,15 @@
-package com.example.dogs.network
+package com.example.dogs.data.network
 
 import android.content.Context
 import android.net.ConnectivityManager
-import com.example.dogs.network.model.*
+import com.example.dogs.data.network.model.AllBreedData
+import com.example.dogs.data.network.model.ImageData
+import com.example.dogs.data.network.model.ImagesData
+import com.example.dogs.data.network.model.NetworkHttpError
+import com.example.dogs.data.network.model.NetworkIOError
+import com.example.dogs.data.network.model.NetworkResponse
+import com.example.dogs.data.network.model.NetworkResult
+import com.example.dogs.data.network.model.NetworkUnavailable
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -18,7 +25,7 @@ class NetworkDataSource @Inject constructor(
         }
     }
 
-    suspend fun getRandomUrlOfBreed(breed: String, subBreed: String): NetworkResponse<ImageData>{
+    suspend fun getRandomUrlOfBreed(breed: String, subBreed: String): NetworkResponse<ImageData> {
         return executeNetworkCall(context) {
             if(subBreed.isBlank()){
                 dogAPI.getRandomUrlOfBreed(breed)
@@ -28,7 +35,7 @@ class NetworkDataSource @Inject constructor(
         }
     }
 
-    suspend fun getAllUrlOfBreed(breed: String, subBreed: String): NetworkResponse<ImagesData>{
+    suspend fun getAllUrlOfBreed(breed: String, subBreed: String): NetworkResponse<ImagesData> {
         return executeNetworkCall(context) {
             if(subBreed.isBlank()){
                 dogAPI.getAllUrlOfBreed(breed)

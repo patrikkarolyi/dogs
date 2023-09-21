@@ -28,16 +28,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.dogs.navigation.Screen
-import com.example.dogs.ui.common.EmptyContent
 import com.example.dogs.ui.common.ListContent
 import com.example.dogs.ui.common.NavDrawer
 import com.example.dogs.ui.common.SearchBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -102,13 +101,8 @@ fun ListScreen(
                     .fillMaxSize()
                     .padding(it)
             ) {
-                viewState.let { state ->
-                    when (state) {
-                        ListViewState.Initial -> EmptyContent()
-                        is ListViewState.Content -> ListContent(
-                            state.result,
-                        ) { id -> navController.navigate(Screen.DetailScreen.withArgs(id)) }
-                    }
+                ListContent(viewState.result) { breedId, fullName ->
+                    navController.navigate(Screen.DetailScreen.withArgs(breedId,fullName))
                 }
                 PullRefreshIndicator(
                     refreshing = refreshing,

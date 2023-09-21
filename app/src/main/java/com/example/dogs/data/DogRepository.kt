@@ -2,9 +2,14 @@ package com.example.dogs.data
 
 import com.example.dogs.data.disk.DiskDataSource
 import com.example.dogs.data.disk.model.RoomBreedData
-import com.example.dogs.network.NetworkDataSource
-import com.example.dogs.network.model.*
+import com.example.dogs.data.disk.model.fullName
+import com.example.dogs.data.network.NetworkDataSource
+import com.example.dogs.data.network.model.AllBreedData
+import com.example.dogs.data.network.model.NetworkResponse
+import com.example.dogs.data.network.model.NetworkResult
+import com.example.dogs.data.presentation.DogPresentationModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class DogRepository @Inject constructor(
@@ -12,8 +17,16 @@ class DogRepository @Inject constructor(
     private val diskDataSource: DiskDataSource,
 ) {
 
-    fun observeAllBreeds(): Flow<List<RoomBreedData>> {
+    fun observeAllBreeds(): Flow<List<DogPresentationModel>> {
         return diskDataSource.getAllBreeds()
+            .map { list ->
+                list.map { roomItem ->
+                    DogPresentationModel(
+                        breedId = roomItem.id,
+                        fullName = roomItem.fullName(),
+                    )
+                }
+            }
     }
 
     suspend fun downloadAllBreeds(): NetworkResponse<AllBreedData> {

@@ -11,14 +11,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.dogs.data.disk.model.RoomBreedData
-import com.example.dogs.util.fullName
+import com.example.dogs.data.presentation.DogPresentationModel
 
 
 @Composable
 fun ListContent(
-    newItems: List<RoomBreedData> = emptyList(),
-    onItemClicked: (String) -> Unit,
+    newItems: List<DogPresentationModel> = emptyList(),
+    onItemClicked: (String, String) -> Unit,
 ) {
     if (newItems.isEmpty()) {
         EmptyContent()
@@ -35,20 +34,20 @@ fun ListContent(
 }
 
 @Composable
-fun ListItemContent(
-    item: RoomBreedData,
-    onItemClicked: (String) -> Unit,
+private fun ListItemContent(
+    item: DogPresentationModel,
+    onItemClicked: (String, String) -> Unit,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                onItemClicked(item.id)
+                onItemClicked(item.breedId, item.fullName)
             },
     ) {
         Text(
-            text = item.fullName(),
+            text = item.fullName,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(16.dp),

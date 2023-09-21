@@ -3,11 +3,7 @@ package com.example.dogs.ui.favorite
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dogs.data.DogRepository
 import com.example.dogs.data.ImageRepository
-import com.example.dogs.ui.common.model.ImageViewState
-import com.example.dogs.ui.favorite.FavoriteViewState.Initial
-import com.example.dogs.util.fullName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,34 +17,24 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteViewModel @Inject constructor(
-    dogDataSource: DogRepository,
     private val imageDataSource: ImageRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     val currentFilter = savedStateHandle.getStateFlow("current_filter_favorite", "")
 
-    val uiState: StateFlow<FavoriteViewState> =
+    val uiState: StateFlow<FavoriteViewContent> =
         combine(
             imageDataSource.observeAllFavoriteImages(),
-            dogDataSource.observeAllBreeds(),
             currentFilter
-        ) { images, dogs, filter ->
-            images
-                .filter { item -> item.breedId.contains(filter) }
-                .map { roomItem ->
-                    ImageViewState(
-                        url = roomItem.url,
-                        isFavorite = roomItem.isFavorite,
-                        fullName = dogs.first { dog -> roomItem.breedId == dog.id }.fullName()
-                    )
-                }
+        ) { images, filter ->
+            images.filter { item -> item.breedId.contains(filter) }
         }
-            .map<List<ImageViewState>, FavoriteViewState>(FavoriteViewState::Content)
+            .map(::FavoriteViewContent)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = Initial,
+                initialValue = FavoriteViewContent(),
             )
 
 

@@ -1,8 +1,7 @@
 package com.example.dogs.ui.details
 
-import com.example.dogs.ui.common.model.ImageViewState
+import com.example.dogs.data.presentation.ImagePresentationModel
 
-sealed class DetailViewState{
-    object Initial : DetailViewState()
-    data class Content(val result: List<ImageViewState>) : DetailViewState()
-}
+data class DetailsViewContent(
+    val result: List<ImagePresentationModel> = emptyList()
+)

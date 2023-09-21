@@ -6,12 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dogs.data.DogRepository
 import com.example.dogs.data.ImageRepository
-import com.example.dogs.network.model.NetworkResponse
-import com.example.dogs.network.model.NetworkResult
-import com.example.dogs.ui.common.model.ImageViewState
-import com.example.dogs.util.fullName
+import com.example.dogs.data.network.model.NetworkResponse
+import com.example.dogs.data.network.model.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,35 +24,23 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
     private val imageDataSource: ImageRepository,
-    private val dogDataSource: DogRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val currentBreedId = savedStateHandle.getStateFlow("current_breedId", "")
 
-    val uiState: StateFlow<DetailViewState> =
+    val uiState: StateFlow<DetailsViewContent> =
         combine(
             imageDataSource.observeAllImages(),
-            dogDataSource.observeAllBreeds(),
             currentBreedId
-        ) { images, dogs, breedId ->
-            images
-                .filter { image -> image.breedId == breedId }
-                .map { roomItem ->
-                    ImageViewState(
-                        url = roomItem.url,
-                        isFavorite = roomItem.isFavorite,
-                        fullName = dogs
-                            .first { dog -> roomItem.breedId == dog.id }
-                            .fullName()
-                    )
-                }
+        ) { images, breedId ->
+            images.filter { image -> image.breedId == breedId }
         }
-            .map<List<ImageViewState>, DetailViewState>(DetailViewState::Content)
+            .map(::DetailsViewContent)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = DetailViewState.Initial,
+                initialValue = DetailsViewContent(),
             )
 
     var isRefreshing by mutableStateOf(false)
@@ -64,15 +49,11 @@ class DetailsViewModel @Inject constructor(
     var errorMessage = MutableSharedFlow<String>()
         private set
 
-    var title by mutableStateOf("")
-        private set
-
     fun refreshImageUrls(breedId: String = currentBreedId.value) {
         viewModelScope.launch {
             isRefreshing = true
             withContext(Dispatchers.IO) {
                 savedStateHandle["current_breedId"] = breedId
-                title = dogDataSource.getDogById(breedId).fullName()
                 imageDataSource.downloadImagesByBreedId(currentBreedId.value).handleError()
             }
             isRefreshing = false

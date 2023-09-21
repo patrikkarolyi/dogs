@@ -7,10 +7,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
-import com.example.dogs.data.disk.model.RoomBreedData
-import com.example.dogs.network.model.NetworkResponse
-import com.example.dogs.network.model.NetworkResult
-import com.example.dogs.ui.list.ListViewState.Initial
+import com.example.dogs.data.network.model.NetworkResponse
+import com.example.dogs.data.network.model.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,19 +30,19 @@ class ListViewModel @Inject constructor(
 
     val currentFilter = savedStateHandle.getStateFlow("current_filter_list", "")
 
-    val uiState: StateFlow<ListViewState> =
+    val uiState: StateFlow<ListViewContent> =
         combine(
             dataSource.observeAllBreeds(),
             currentFilter,
         ) { list, filter ->
-            list.filter { item -> item.id.contains(filter) }
+            list.filter { item -> item.breedId.contains(filter) }
         }
-            .map<List<RoomBreedData>, ListViewState>(ListViewState::Content)
+            .map(::ListViewContent)
             .onStart { refreshAllBreeds() }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = Initial,
+                initialValue = ListViewContent(),
             )
 
     var isRefreshing by mutableStateOf(false)
