@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -32,7 +34,11 @@ fun EmptyContent() {
         isVisible = true
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
         AnimatedVisibility(
             visible = isVisible,
             exit = fadeOut(animationSpec = tween(2000, easing = LinearEasing)),
@@ -42,7 +48,7 @@ fun EmptyContent() {
             Text(
                 text = stringResource(R.string.no_content),
                 color = MaterialTheme.colorScheme.onBackground,
-                )
+            )
         }
     }
 }

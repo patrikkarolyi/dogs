@@ -9,6 +9,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,16 +44,16 @@ fun DetailScreen(
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val viewState by viewModel.uiState.collectAsState()
-    val refreshing = viewModel.isRefreshing
-    val snackbarHostState = remember { SnackbarHostState() }
-    val pullRefreshState = rememberPullRefreshState(refreshing, viewModel::refreshImageUrls)
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val sbHostState = remember { SnackbarHostState() }
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, viewModel::refreshImageUrls)
 
     if (breedId.isNotBlank()) {
-        LaunchedEffect(coroutineScope) {
+        LaunchedEffect(Unit) {
             viewModel.refreshImageUrls(breedId = breedId)
             viewModel.errorMessage.collectLatest { message ->
                 coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
+                    sbHostState.showSnackbar(
                         message
                     )
                 }
@@ -93,6 +94,7 @@ fun DetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
+                .pullRefresh(pullRefreshState)
         ) {
             DetailContent(
                 newItems = viewState.result,
@@ -100,9 +102,8 @@ fun DetailScreen(
                     viewModel.updateImageFavoriteById(url, isFavorite)
                 }
             )
-            //TODO make pull to refresh work on EmptyContent
             PullRefreshIndicator(
-                refreshing,
+                isRefreshing,
                 pullRefreshState,
                 Modifier.align(Alignment.TopCenter)
             )

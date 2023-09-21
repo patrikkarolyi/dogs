@@ -1,8 +1,5 @@
 package com.example.dogs.ui.details
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,8 +9,10 @@ import com.example.dogs.data.network.model.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -27,7 +26,7 @@ class DetailsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val currentBreedId = savedStateHandle.getStateFlow("current_breedId", "")
+    private val currentBreedId = savedStateHandle.getStateFlow(currentBreedIdFlow, "")
 
     val uiState: StateFlow<DetailsViewContent> =
         combine(
@@ -43,20 +42,22 @@ class DetailsViewModel @Inject constructor(
                 initialValue = DetailsViewContent(),
             )
 
-    var isRefreshing by mutableStateOf(false)
-        private set
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean>
+        get() = _isRefreshing.asStateFlow()
 
     var errorMessage = MutableSharedFlow<String>()
         private set
 
     fun refreshImageUrls(breedId: String = currentBreedId.value) {
         viewModelScope.launch {
-            isRefreshing = true
+            _isRefreshing.emit(true)
             withContext(Dispatchers.IO) {
-                savedStateHandle["current_breedId"] = breedId
+                savedStateHandle[currentBreedIdFlow] = breedId
                 imageDataSource.downloadImagesByBreedId(currentBreedId.value).handleError()
             }
-            isRefreshing = false
+            _isRefreshing.emit(false)
         }
     }
 
@@ -75,5 +76,8 @@ class DetailsViewModel @Inject constructor(
                 errorMessage.emit(this.toString())
             }
         }
+    }
+    companion object{
+        const val currentBreedIdFlow = "current_breed_id_details_flow"
     }
 }

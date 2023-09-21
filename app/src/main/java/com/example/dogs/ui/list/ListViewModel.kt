@@ -1,8 +1,5 @@
 package com.example.dogs.ui.list
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,8 +9,10 @@ import com.example.dogs.data.network.model.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -28,7 +27,7 @@ class ListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    val currentFilter = savedStateHandle.getStateFlow("current_filter_list", "")
+    val currentFilter = savedStateHandle.getStateFlow(currentFilterListFlow, "")
 
     val uiState: StateFlow<ListViewContent> =
         combine(
@@ -45,25 +44,26 @@ class ListViewModel @Inject constructor(
                 initialValue = ListViewContent(),
             )
 
-    var isRefreshing by mutableStateOf(false)
-        private set
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean>
+        get() = _isRefreshing.asStateFlow()
 
     var errorMessage = MutableSharedFlow<String>()
         private set
 
     fun refreshAllBreeds() {
         viewModelScope.launch {
-            isRefreshing = true
+            _isRefreshing.emit(true)
             withContext(Dispatchers.IO) {
                 dataSource.downloadAllBreeds().handleError()
             }
-            isRefreshing = false
+            _isRefreshing.emit(false)
         }
     }
 
     fun updateFilters(filter: String) {
         viewModelScope.launch {
-            savedStateHandle["current_filter_list"] = filter
+            savedStateHandle[currentFilterListFlow] = filter
         }
     }
 
@@ -74,5 +74,9 @@ class ListViewModel @Inject constructor(
                 errorMessage.emit(this.toString())
             }
         }
+    }
+
+    companion object {
+        const val currentFilterListFlow = "current_filter_list_flow"
     }
 }

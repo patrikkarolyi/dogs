@@ -9,6 +9,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -45,9 +46,9 @@ fun ListScreen(
     navController: NavController,
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val refreshing = viewModel.isRefreshing
-    val pullRefreshState = rememberPullRefreshState(refreshing, {})
+    val sbHostState = remember { SnackbarHostState() }
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, viewModel::refreshAllBreeds)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewState by viewModel.uiState.collectAsState()
     val filter by viewModel.currentFilter.collectAsState()
@@ -55,7 +56,7 @@ fun ListScreen(
     LaunchedEffect(coroutineScope) {
         viewModel.errorMessage.collectLatest { message ->
             coroutineScope.launch {
-                snackbarHostState.showSnackbar(
+                sbHostState.showSnackbar(
                     message
                 )
             }
@@ -67,8 +68,9 @@ fun ListScreen(
         navController = navController,
     ) {
         Scaffold(
-            modifier = Modifier.padding(top = 20.dp),
-            snackbarHost = { SnackbarHost(snackbarHostState) },
+            modifier = Modifier
+                .padding(top = 20.dp),
+            snackbarHost = { SnackbarHost(sbHostState) },
             topBar = {
                 Row(
                     verticalAlignment = CenterVertically,
@@ -100,12 +102,13 @@ fun ListScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
+                    .pullRefresh(pullRefreshState)
             ) {
                 ListContent(viewState.result) { breedId, fullName ->
                     navController.navigate(Screen.DetailScreen.withArgs(breedId,fullName))
                 }
                 PullRefreshIndicator(
-                    refreshing = refreshing,
+                    refreshing = isRefreshing,
                     state = pullRefreshState,
                     modifier = Modifier.align(Alignment.TopCenter)
                 )

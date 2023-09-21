@@ -21,7 +21,7 @@ class FavoriteViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val currentFilter = savedStateHandle.getStateFlow("current_filter_favorite", "")
+    val currentFilter = savedStateHandle.getStateFlow(currentFilterFlow, "")
 
     val uiState: StateFlow<FavoriteViewContent> =
         combine(
@@ -48,7 +48,10 @@ class FavoriteViewModel @Inject constructor(
 
     fun updateFilters(filter: String) {
         viewModelScope.launch {
-            savedStateHandle["current_filter_favorite"] = filter
+            savedStateHandle[currentFilterFlow] = filter
         }
+    }
+    companion object{
+        const val currentFilterFlow = "current_filter_flow"
     }
 }
