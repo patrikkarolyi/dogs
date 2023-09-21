@@ -1,6 +1,5 @@
 package com.example.dogs.ui.favorite
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.dogs.ui.common.DetailContent
@@ -47,8 +47,7 @@ fun FavImgScreen(
         navController = navController,
     ) {
         Scaffold(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background),
+            modifier = Modifier.padding(top = 20.dp),
             topBar = {
                 Row(
                     modifier = Modifier

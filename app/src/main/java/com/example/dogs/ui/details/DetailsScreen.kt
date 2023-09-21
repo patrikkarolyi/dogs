@@ -1,6 +1,5 @@
 package com.example.dogs.ui.details
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -65,8 +64,7 @@ fun DetailScreen(
     }
 
     Scaffold(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background),
+        modifier = Modifier.padding(top = 20.dp),
         topBar = {
             Box(
                 modifier = Modifier

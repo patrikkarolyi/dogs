@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.dogs.navigation.Screen
 import com.example.dogs.ui.common.EmptyContent
@@ -67,6 +68,7 @@ fun ListScreen(
         navController = navController,
     ) {
         Scaffold(
+            modifier = Modifier.padding(top = 20.dp),
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 Row(
@@ -93,7 +95,7 @@ fun ListScreen(
                         text = filter,
                     )
                 }
-            },
+            }
         ) {
             Box(
                 modifier = Modifier
