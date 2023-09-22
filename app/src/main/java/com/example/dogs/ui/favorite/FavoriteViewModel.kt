@@ -6,10 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.ImageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,15 +23,25 @@ class FavoriteViewModel @Inject constructor(
 
     val currentFilter = savedStateHandle.getStateFlow(currentFilterFlow, "")
 
+    private val _images = imageDataSource.observeAllFavoriteImages()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
+
+
+    private val _uiState = MutableStateFlow(FavoriteViewContent())
     val uiState: StateFlow<FavoriteViewContent> =
         combine(
-            imageDataSource.observeAllFavoriteImages(),
+            _uiState,
+            _images,
             currentFilter
-        ) { images, filter ->
-            images.filter { item -> item.breedId.contains(filter) }
-        }
-            .map(::FavoriteViewContent)
-            .stateIn(
+        ) { state, images, filter ->
+            state.copy(
+                result = images.filter { item -> item.breedId.contains(filter) },
+            )
+        }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = FavoriteViewContent(),

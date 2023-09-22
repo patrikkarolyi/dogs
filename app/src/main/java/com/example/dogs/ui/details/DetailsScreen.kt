@@ -45,9 +45,8 @@ fun DetailScreen(
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val viewState by viewModel.uiState.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
     val sbHostState = remember { SnackbarHostState() }
-    val pullRefreshState = rememberPullRefreshState(isRefreshing, viewModel::refreshImageUrls)
+    val pullRefreshState = rememberPullRefreshState(viewState.isRefreshing, viewModel::refreshImageUrls)
 
     if (breedId.isNotBlank()) {
         LaunchedEffect(Unit) {
@@ -105,7 +104,7 @@ fun DetailScreen(
                 }
             )
             PullRefreshIndicator(
-                isRefreshing,
+                viewState.isRefreshing,
                 pullRefreshState,
                 Modifier.align(Alignment.TopCenter)
             )

@@ -14,10 +14,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -30,36 +29,44 @@ class DetailsViewModel @Inject constructor(
 
     private val currentBreedId = savedStateHandle.getStateFlow(currentBreedIdFlow, "")
 
+    private val _images = imageDataSource.observeAllImages()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
+
+    private val _uiState = MutableStateFlow(DetailsViewContent())
     val uiState: StateFlow<DetailsViewContent> =
         combine(
-            imageDataSource.observeAllImages(),
+            _uiState,
+            _images,
             currentBreedId
-        ) { images, breedId ->
-            images.filter { image -> image.breedId == breedId }
-        }
-            .map(::DetailsViewContent)
-            .stateIn(
+        ) { state, images, breedId ->
+            state.copy(
+                result = images.filter { image -> image.breedId == breedId },
+                isRefreshing = false
+            )
+        }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = DetailsViewContent(),
             )
-
-
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing: StateFlow<Boolean>
-        get() = _isRefreshing.asStateFlow()
 
     var errorMessage = MutableSharedFlow<NetworkErrorPresentationModel>()
         private set
 
     fun refreshImageUrls(breedId: String = currentBreedId.value) {
         viewModelScope.launch {
-            _isRefreshing.emit(true)
+            _uiState.update {
+                it.copy(
+                    isRefreshing = true
+                )
+            }
             withContext(Dispatchers.IO) {
                 savedStateHandle[currentBreedIdFlow] = breedId
                 imageDataSource.downloadImagesByBreedId(currentBreedId.value).handleError()
             }
-            _isRefreshing.emit(false)
         }
     }
 

@@ -49,9 +49,8 @@ fun ListScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewState by viewModel.uiState.collectAsState()
     val filter by viewModel.currentFilter.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
     val sbHostState = remember { SnackbarHostState() }
-    val pullRefreshState = rememberPullRefreshState(isRefreshing, viewModel::refreshAllBreeds)
+    val pullRefreshState = rememberPullRefreshState(viewState.isRefreshing, viewModel::refreshAllBreeds)
 
     LaunchedEffect(coroutineScope) {
         viewModel.errorMessage.collectLatest { error ->
@@ -107,7 +106,7 @@ fun ListScreen(
                     navController.navigate(Screen.DetailScreen.withArgs(breedId,fullName))
                 }
                 PullRefreshIndicator(
-                    refreshing = isRefreshing,
+                    refreshing = viewState.isRefreshing,
                     state = pullRefreshState,
                     modifier = Modifier.align(Alignment.TopCenter)
                 )
