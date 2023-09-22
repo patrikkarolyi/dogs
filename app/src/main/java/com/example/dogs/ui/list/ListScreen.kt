@@ -46,18 +46,18 @@ fun ListScreen(
     navController: NavController,
 ) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
-    val sbHostState = remember { SnackbarHostState() }
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val pullRefreshState = rememberPullRefreshState(isRefreshing, viewModel::refreshAllBreeds)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewState by viewModel.uiState.collectAsState()
     val filter by viewModel.currentFilter.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val sbHostState = remember { SnackbarHostState() }
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, viewModel::refreshAllBreeds)
 
     LaunchedEffect(coroutineScope) {
-        viewModel.errorMessage.collectLatest { message ->
+        viewModel.errorMessage.collectLatest { error ->
             coroutineScope.launch {
                 sbHostState.showSnackbar(
-                    message
+                    message = error.message
                 )
             }
         }
@@ -68,8 +68,7 @@ fun ListScreen(
         navController = navController,
     ) {
         Scaffold(
-            modifier = Modifier
-                .padding(top = 20.dp),
+            modifier = Modifier.padding(top = 20.dp),
             snackbarHost = { SnackbarHost(sbHostState) },
             topBar = {
                 Row(

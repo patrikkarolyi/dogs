@@ -19,8 +19,7 @@ class ImageRepository @Inject constructor(
 
     suspend fun downloadImagesByBreedId(id: String): NetworkResponse<ImagesData> {
         val dog = diskDataSource.getBreedById(id)
-        return when (val networkResult =
-            networkDataSource.getAllUrlOfBreed(dog.breedName, dog.subBreedName)) {
+        return when (val networkResult = networkDataSource.getAllUrlOfBreed(dog.breedName, dog.subBreedName)) {
             is NetworkResult -> {
                 diskDataSource.insertImagesObject(
                     networkResult.result.message.map {
@@ -44,15 +43,15 @@ class ImageRepository @Inject constructor(
             diskDataSource.getAllBreeds()
         ) { images, dogs ->
             images.map { roomItem ->
-                    ImagePresentationModel(
-                        url = roomItem.url,
-                        breedId = roomItem.breedId,
-                        isFavorite = roomItem.isFavorite,
-                        fullName = dogs
-                            .first { dog -> roomItem.breedId == dog.id }
-                            .fullName(),
-                    )
-                }
+                ImagePresentationModel(
+                    url = roomItem.url,
+                    breedId = roomItem.breedId,
+                    isFavorite = roomItem.isFavorite,
+                    fullName = dogs
+                        .first { dog -> roomItem.breedId == dog.id }
+                        .fullName(),
+                )
+            }
         }
     }
 

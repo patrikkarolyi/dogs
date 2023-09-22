@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.ImageRepository
 import com.example.dogs.data.network.model.NetworkResponse
 import com.example.dogs.data.network.model.NetworkResult
+import com.example.dogs.data.network.model.translateNetworkResponse
+import com.example.dogs.data.presentation.NetworkErrorPresentationModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,7 +49,7 @@ class DetailsViewModel @Inject constructor(
     val isRefreshing: StateFlow<Boolean>
         get() = _isRefreshing.asStateFlow()
 
-    var errorMessage = MutableSharedFlow<String>()
+    var errorMessage = MutableSharedFlow<NetworkErrorPresentationModel>()
         private set
 
     fun refreshImageUrls(breedId: String = currentBreedId.value) {
@@ -72,12 +74,14 @@ class DetailsViewModel @Inject constructor(
     private fun NetworkResponse<*>.handleError() {
         if (this !is NetworkResult) {
             viewModelScope.launch {
-                //TODO error handling
-                errorMessage.emit(this.toString())
+                errorMessage.emit(
+                    this@handleError.translateNetworkResponse()
+                )
             }
         }
     }
-    companion object{
+
+    companion object {
         const val currentBreedIdFlow = "current_breed_id_details_flow"
     }
 }

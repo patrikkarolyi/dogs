@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.dogs.data.DogRepository
 import com.example.dogs.data.network.model.NetworkResponse
 import com.example.dogs.data.network.model.NetworkResult
+import com.example.dogs.data.network.model.translateNetworkResponse
+import com.example.dogs.data.presentation.NetworkErrorPresentationModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -48,7 +50,7 @@ class ListViewModel @Inject constructor(
     val isRefreshing: StateFlow<Boolean>
         get() = _isRefreshing.asStateFlow()
 
-    var errorMessage = MutableSharedFlow<String>()
+    var errorMessage = MutableSharedFlow<NetworkErrorPresentationModel>()
         private set
 
     fun refreshAllBreeds() {
@@ -68,10 +70,11 @@ class ListViewModel @Inject constructor(
     }
 
     private fun NetworkResponse<*>.handleError() {
-        if (this !is NetworkResult) {
+        if(this !is NetworkResult){
             viewModelScope.launch {
-                //TODO error handling
-                errorMessage.emit(this.toString())
+                errorMessage.emit(
+                    this@handleError.translateNetworkResponse()
+                )
             }
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,10 +52,10 @@ fun DetailScreen(
     if (breedId.isNotBlank()) {
         LaunchedEffect(Unit) {
             viewModel.refreshImageUrls(breedId = breedId)
-            viewModel.errorMessage.collectLatest { message ->
+            viewModel.errorMessage.collectLatest { error ->
                 coroutineScope.launch {
                     sbHostState.showSnackbar(
-                        message
+                        error.message
                     )
                 }
             }
@@ -63,6 +64,7 @@ fun DetailScreen(
 
     Scaffold(
         modifier = Modifier.padding(top = 20.dp),
+        snackbarHost = { SnackbarHost(sbHostState) },
         topBar = {
             Box(
                 modifier = Modifier
@@ -72,7 +74,7 @@ fun DetailScreen(
                 IconButton(
                     modifier = Modifier.align(Alignment.CenterStart),
                     onClick = {
-                        navController.popBackStack()
+                        navController.navigateUp()
                     }
                 ) {
                     Icon(
