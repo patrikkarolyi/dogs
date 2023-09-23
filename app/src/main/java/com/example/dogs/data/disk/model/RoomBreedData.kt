@@ -10,7 +10,6 @@ data class RoomBreedData(
     val id: String,
     val breedName: String,
     val subBreedName: String,
-    val isFavorite: Boolean
 )
 
 fun RoomBreedData.fullName() = "${this.subBreedName.capFirst()} ${this.breedName.capFirst()}".trim()

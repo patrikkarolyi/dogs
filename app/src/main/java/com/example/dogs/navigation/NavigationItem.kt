@@ -25,7 +25,7 @@ object NavigationItems {
         ),
         NavigationItem(
             titleRes = R.string.images,
-            route = Screen.FavImgScreen.route,
+            route = Screen.FavoriteScreen.route,
             selectedIcon = Icons.Filled.Favorite,
             unselectedIcon = Icons.Outlined.FavoriteBorder,
         )

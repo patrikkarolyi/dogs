@@ -29,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.dogs.ui.common.DetailContent
+import com.example.dogs.ui.common.ImageListContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun DetailScreen(
+fun DetailsScreen(
     viewModel: DetailsViewModel = hiltViewModel(),
     navController: NavController,
     breedId: String,
@@ -97,7 +97,7 @@ fun DetailScreen(
                 .padding(it)
                 .pullRefresh(pullRefreshState)
         ) {
-            DetailContent(
+            ImageListContent(
                 newItems = viewState.result,
                 onItemFavoriteClicked = { url, isFavorite ->
                     viewModel.updateImageFavoriteById(url, isFavorite)

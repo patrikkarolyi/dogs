@@ -1,7 +1,6 @@
 package com.example.dogs.data.network
 
 import com.example.dogs.data.network.model.AllBreedData
-import com.example.dogs.data.network.model.ImageData
 import com.example.dogs.data.network.model.ImagesData
 import com.example.dogs.data.network.model.NetworkHttpError
 import com.example.dogs.data.network.model.NetworkIOError
@@ -18,16 +17,6 @@ class NetworkDataSource @Inject constructor(
     suspend fun getAllBreeds(): NetworkResponse<AllBreedData> {
         return executeNetworkCall {
             dogAPI.getAllBreeds()
-        }
-    }
-
-    suspend fun getRandomUrlOfBreed(breed: String, subBreed: String): NetworkResponse<ImageData> {
-        return executeNetworkCall {
-            if(subBreed.isBlank()){
-                dogAPI.getRandomUrlOfBreed(breed)
-            }else{
-                dogAPI.getRandomUrlOfBreed(breed,subBreed)
-            }
         }
     }
 

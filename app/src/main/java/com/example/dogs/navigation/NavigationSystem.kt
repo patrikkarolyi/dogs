@@ -7,8 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.dogs.ui.details.DetailScreen
-import com.example.dogs.ui.favorite.FavImgScreen
+import com.example.dogs.ui.details.DetailsScreen
+import com.example.dogs.ui.favorite.FavoriteScreen
 import com.example.dogs.ui.list.ListScreen
 
 @Composable
@@ -27,7 +27,7 @@ fun NavigationSystem() {
         }
 
         composable(
-            route = Screen.DetailScreen.route + "/{breedId}/{title}",
+            route = Screen.DetailsScreen.route + "/{breedId}/{title}",
             arguments = listOf(
                 navArgument("breedId"){
                     type = NavType.StringType
@@ -38,15 +38,15 @@ fun NavigationSystem() {
                     defaultValue = ""
                 }
             )){entry ->
-            DetailScreen(
+            DetailsScreen(
                 navController = navController,
                 breedId = entry.arguments?.getString("breedId") ?: "",
                 title = entry.arguments?.getString("title") ?: "",
             )
         }
 
-        composable(route = Screen.FavImgScreen.route){
-            FavImgScreen(
+        composable(route = Screen.FavoriteScreen.route){
+            FavoriteScreen(
                 navController = navController,
             )
         }

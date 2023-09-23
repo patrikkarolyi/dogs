@@ -21,14 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.dogs.ui.common.DetailContent
+import com.example.dogs.ui.common.ImageListContent
 import com.example.dogs.ui.common.NavDrawer
 import com.example.dogs.ui.common.SearchBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun FavImgScreen(
+fun FavoriteScreen(
     viewModel: FavoriteViewModel = hiltViewModel(),
     navController: NavController,
 ) {
@@ -76,7 +76,7 @@ fun FavImgScreen(
                 modifier = Modifier
                     .padding(it)
             ) {
-                DetailContent(
+                ImageListContent(
                     newItems = viewState.result,
                     onItemFavoriteClicked = { url, isFavorite ->
                         viewModel.updateImageFavoriteById(url, isFavorite)

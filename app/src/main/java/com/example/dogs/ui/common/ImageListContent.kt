@@ -26,7 +26,7 @@ import com.example.dogs.R
 import com.example.dogs.data.presentation.ImagePresentationModel
 
 @Composable
-fun DetailContent(
+fun ImageListContent(
     newItems: List<ImagePresentationModel> = emptyList(),
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
@@ -35,7 +35,7 @@ fun DetailContent(
     } else {
         LazyColumn {
             items(newItems) { item ->
-                DetailItemContent(
+                ImageListContentItem(
                     item = item,
                     onItemFavoriteClicked = onItemFavoriteClicked
                 )
@@ -46,7 +46,7 @@ fun DetailContent(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun DetailItemContent(
+private fun ImageListContentItem(
     item: ImagePresentationModel,
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {

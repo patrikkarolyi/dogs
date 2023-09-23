@@ -55,10 +55,6 @@ class ImageRepository @Inject constructor(
         }
     }
 
-    fun getImagesByBreedId(breedId: String): List<RoomImageData> {
-        return diskDataSource.getImagesByBreedId(breedId)
-    }
-
     fun observeAllFavoriteImages(): Flow<List<ImagePresentationModel>> {
         return combine(
             diskDataSource.getAllFavoriteImages(),

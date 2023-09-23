@@ -62,12 +62,7 @@ class DogRepository @Inject constructor(
         return RoomBreedData(
             id = "$breed$subBreed",
             breedName = breed,
-            subBreedName = subBreed,
-            isFavorite = false
+            subBreedName = subBreed
         )
-    }
-
-    fun getDogById(breedId: String): RoomBreedData {
-        return diskDataSource.getBreedById(breedId)
     }
 }

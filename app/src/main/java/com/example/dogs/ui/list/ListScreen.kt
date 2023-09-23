@@ -48,11 +48,10 @@ fun ListScreen(
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewState by viewModel.uiState.collectAsState()
-    val filter by viewModel.currentFilter.collectAsState()
     val sbHostState = remember { SnackbarHostState() }
     val pullRefreshState = rememberPullRefreshState(viewState.isRefreshing, viewModel::refreshAllBreeds)
 
-    LaunchedEffect(coroutineScope) {
+    LaunchedEffect(Unit) {
         viewModel.errorMessage.collectLatest { error ->
             coroutineScope.launch {
                 sbHostState.showSnackbar(
@@ -91,7 +90,6 @@ fun ListScreen(
                     }
                     SearchBar(
                         onSearchTriggered = { viewModel.updateFilters(it) },
-                        text = filter,
                     )
                 }
             }
@@ -103,7 +101,7 @@ fun ListScreen(
                     .pullRefresh(pullRefreshState)
             ) {
                 ListContent(viewState.result) { breedId, fullName ->
-                    navController.navigate(Screen.DetailScreen.withArgs(breedId,fullName))
+                    navController.navigate(Screen.DetailsScreen.withArgs(breedId,fullName))
                 }
                 PullRefreshIndicator(
                     refreshing = viewState.isRefreshing,
