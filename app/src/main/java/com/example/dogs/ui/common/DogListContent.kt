@@ -10,8 +10,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.example.dogs.data.presentation.DogPresentationModel
+import com.example.dogs.util.TestTags
 
 
 @Composable
@@ -22,7 +24,9 @@ fun ListContent(
     if (newItems.isEmpty()) {
         EmptyContent()
     } else {
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier.testTag(TestTags.LIST_CONTENT)
+        ) {
             items(newItems) { item ->
                 ListItemContent(
                     item = item,

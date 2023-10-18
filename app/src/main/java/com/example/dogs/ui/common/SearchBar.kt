@@ -22,12 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dogs.R
 import com.example.dogs.ui.theme.DogsTheme
+import com.example.dogs.util.TestTags
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -86,7 +88,8 @@ fun SearchBar(
         colors = OutlinedTextFieldDefaults.colors(),
         modifier = modifier
             .focusRequester(focusRequester)
-            .padding(8.dp),
+            .padding(8.dp)
+            .testTag(TestTags.SEARCH_BAR),
     )
 }
 

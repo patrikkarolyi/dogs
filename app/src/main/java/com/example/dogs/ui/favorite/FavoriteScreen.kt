@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.dogs.data.presentation.ImagePresentationModel
 import com.example.dogs.ui.common.ImageListContent
 import com.example.dogs.ui.common.NavDrawer
 import com.example.dogs.ui.common.SearchBar
@@ -32,13 +33,27 @@ fun FavoriteScreen(
     viewModel: FavoriteViewModel = hiltViewModel(),
     navController: NavController,
 ) {
+    val viewState by viewModel.uiState.collectAsState()
+
+    FavoriteScreen(
+        navController = navController,
+        newItems = viewState.result,
+        onSearchTriggered = viewModel::updateFilters,
+        onItemFavoriteClicked = viewModel::updateImageFavoriteByUrl
+    )
+}
+
+@Composable
+fun FavoriteScreen(
+    newItems: List<ImagePresentationModel> = emptyList(),
+    navController: NavController,
+    onSearchTriggered: (String) -> Unit,
+    onItemFavoriteClicked: (String, Boolean) -> Unit
+) {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val viewState by viewModel.uiState.collectAsState()
-    val filter by viewModel.currentFilter.collectAsState()
 
     NavDrawer(
-        modifier = Modifier,
         drawerState = drawerState,
         navController = navController,
     ) {
@@ -66,8 +81,7 @@ fun FavoriteScreen(
                         )
                     }
                     SearchBar(
-                        text = filter,
-                        onSearchTriggered = { viewModel.updateFilters(it) }
+                        onSearchTriggered = onSearchTriggered,
                     )
                 }
             },
@@ -77,10 +91,8 @@ fun FavoriteScreen(
                     .padding(it)
             ) {
                 ImageListContent(
-                    newItems = viewState.result,
-                    onItemFavoriteClicked = { url, isFavorite ->
-                        viewModel.updateImageFavoriteByUrl(url, isFavorite)
-                    }
+                    newItems = newItems,
+                    onItemFavoriteClicked = onItemFavoriteClicked
                 )
             }
         }

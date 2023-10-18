@@ -19,11 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.dogs.R
 import com.example.dogs.data.presentation.ImagePresentationModel
+import com.example.dogs.util.TestTags
 
 @Composable
 fun ImageListContent(
@@ -33,7 +35,9 @@ fun ImageListContent(
     if (newItems.isEmpty()) {
         EmptyContent()
     } else {
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier.testTag(TestTags.IMAGE_CONTENT)
+        ) {
             items(newItems) { item ->
                 ImageListContentItem(
                     item = item,

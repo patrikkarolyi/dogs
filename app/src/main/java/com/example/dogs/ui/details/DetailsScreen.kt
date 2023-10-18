@@ -26,16 +26,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.dogs.data.presentation.ImagePresentationModel
+import com.example.dogs.data.presentation.NetworkErrorPresentationModel
 import com.example.dogs.ui.common.ImageListContent
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun DetailsScreen(
     viewModel: DetailsViewModel = hiltViewModel(),
@@ -43,20 +44,49 @@ fun DetailsScreen(
     breedId: String,
     title: String
 ) {
-    val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val viewState by viewModel.uiState.collectAsState()
-    val sbHostState = remember { SnackbarHostState() }
-    val pullRefreshState = rememberPullRefreshState(viewState.isRefreshing, viewModel::refreshImageUrls)
+    val error by viewModel.errorMessage.collectAsState(initial = null)
 
     if (breedId.isNotBlank()) {
         LaunchedEffect(Unit) {
-            viewModel.refreshImageUrls(breedId = breedId)
-            viewModel.errorMessage.collectLatest { error ->
-                coroutineScope.launch {
-                    sbHostState.showSnackbar(
-                        error.message
-                    )
-                }
+            viewModel.refreshImageUrls(breedId)
+        }
+    }
+
+    DetailsScreen(
+        navController = navController,
+        error = error,
+        title = title,
+        newItems = viewState.result,
+        isRefreshing = viewState.isRefreshing,
+        onItemFavoriteClicked = viewModel::updateImageFavoriteByUrl,
+        onRefreshTriggered = viewModel::refreshImageUrls
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
+@Composable
+fun DetailsScreen(
+    navController: NavController,
+    error: NetworkErrorPresentationModel?,
+    title: String,
+    newItems: List<ImagePresentationModel> = emptyList(),
+    isRefreshing: Boolean,
+    onRefreshTriggered: () -> Unit,
+    onItemFavoriteClicked: (String, Boolean) -> Unit,
+) {
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefreshTriggered)
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val sbHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
+
+    LaunchedEffect(error) {
+        error?.let {
+            coroutineScope.launch {
+                sbHostState.showSnackbar(
+                    error.getStringMessage(context)
+                )
             }
         }
     }
@@ -98,13 +128,11 @@ fun DetailsScreen(
                 .pullRefresh(pullRefreshState)
         ) {
             ImageListContent(
-                newItems = viewState.result,
-                onItemFavoriteClicked = { url, isFavorite ->
-                    viewModel.updateImageFavoriteByUrl(url, isFavorite)
-                }
+                newItems = newItems,
+                onItemFavoriteClicked = onItemFavoriteClicked
             )
             PullRefreshIndicator(
-                viewState.isRefreshing,
+                isRefreshing,
                 pullRefreshState,
                 Modifier.align(Alignment.TopCenter)
             )

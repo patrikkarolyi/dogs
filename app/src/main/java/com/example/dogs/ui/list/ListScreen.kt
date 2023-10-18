@@ -26,36 +26,59 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.dogs.data.presentation.DogPresentationModel
+import com.example.dogs.data.presentation.NetworkErrorPresentationModel
 import com.example.dogs.navigation.Screen
 import com.example.dogs.ui.common.ListContent
 import com.example.dogs.ui.common.NavDrawer
 import com.example.dogs.ui.common.SearchBar
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ListScreen(
     viewModel: ListViewModel = hiltViewModel(),
     navController: NavController,
 ) {
-    val coroutineScope: CoroutineScope = rememberCoroutineScope()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val viewState by viewModel.uiState.collectAsState()
-    val sbHostState = remember { SnackbarHostState() }
-    val pullRefreshState = rememberPullRefreshState(viewState.isRefreshing, viewModel::refreshAllBreeds)
+    val error by viewModel.errorMessage.collectAsState(initial = null)
 
-    LaunchedEffect(Unit) {
-        viewModel.errorMessage.collectLatest { error ->
+    ListScreen(
+        navController = navController,
+        error = error,
+        newItems = viewState.result,
+        isRefreshing = viewState.isRefreshing,
+        onRefreshTriggered = viewModel::refreshAllBreeds,
+        onSearchTriggered = viewModel::updateFilters,
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ListScreen(
+    navController: NavController,
+    error: NetworkErrorPresentationModel?,
+    newItems: List<DogPresentationModel> = emptyList(),
+    isRefreshing: Boolean = false,
+    onRefreshTriggered: () -> Unit,
+    onSearchTriggered: (String) -> Unit,
+) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefreshTriggered)
+    val context = LocalContext.current
+    val sbHostState = remember { SnackbarHostState() }
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(error) {
+        error?.let {
             coroutineScope.launch {
                 sbHostState.showSnackbar(
-                    message = error.message
+                    message = error.getStringMessage(context)
                 )
             }
         }
@@ -70,7 +93,7 @@ fun ListScreen(
             snackbarHost = { SnackbarHost(sbHostState) },
             topBar = {
                 Row(
-                    verticalAlignment = CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     IconButton(
@@ -89,7 +112,7 @@ fun ListScreen(
                         )
                     }
                     SearchBar(
-                        onSearchTriggered = { viewModel.updateFilters(it) },
+                        onSearchTriggered = onSearchTriggered,
                     )
                 }
             }
@@ -100,11 +123,11 @@ fun ListScreen(
                     .padding(it)
                     .pullRefresh(pullRefreshState)
             ) {
-                ListContent(viewState.result) { breedId, fullName ->
-                    navController.navigate(Screen.DetailsScreen.withArgs(breedId,fullName))
+                ListContent(newItems) { breedId, fullName ->
+                    navController.navigate(Screen.DetailsScreen.withArgs(breedId, fullName))
                 }
                 PullRefreshIndicator(
-                    refreshing = viewState.isRefreshing,
+                    refreshing = isRefreshing,
                     state = pullRefreshState,
                     modifier = Modifier.align(Alignment.TopCenter)
                 )

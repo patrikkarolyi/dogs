@@ -19,8 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.example.dogs.R
+import com.example.dogs.util.TestTags
 import kotlinx.coroutines.delay
 
 @Composable
@@ -38,6 +40,7 @@ fun EmptyContent() {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .testTag(TestTags.EMPTY_CONTENT)
     ) {
         AnimatedVisibility(
             visible = isVisible,

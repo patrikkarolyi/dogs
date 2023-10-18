@@ -1,5 +1,6 @@
 package com.example.dogs.data.network.model
 
+import com.example.dogs.R
 import com.example.dogs.data.presentation.NetworkErrorPresentationModel
 
 /**
@@ -26,10 +27,11 @@ class NetworkResult<out T : Any>(val result: T) : NetworkResponse<T>()
 fun NetworkResponse<*>.translateNetworkResponse(): NetworkErrorPresentationModel {
     return NetworkErrorPresentationModel(
         timestamp = System.currentTimeMillis(),
+        errorCode = if (this is NetworkHttpError) this.errorCode.toString() else "",
         message = when (this) {
-            NetworkIOError -> "No internet connection!"
-            is NetworkHttpError -> "HTTP error: ${this.errorCode}"
-            else -> this.toString()
+            NetworkIOError -> R.string.no_internet_connection
+            is NetworkHttpError -> R.string.http_error
+            else -> R.string.unknown_error
         },
     )
 }
