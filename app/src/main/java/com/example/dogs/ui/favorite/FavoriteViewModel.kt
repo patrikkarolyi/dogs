@@ -3,27 +3,26 @@ package com.example.dogs.ui.favorite
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dogs.data.ImageRepository
+import com.example.dogs.data.repository.ImageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteViewModel @Inject constructor(
-    private val imageDataSource: ImageRepository,
+    private val imageRepository: ImageRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     val currentFilter = savedStateHandle.getStateFlow(currentFilterFlow, "")
 
-    private val _images = imageDataSource.observeAllFavoriteImages()
+
+    private val _images = imageRepository.observeAllFavoriteImages()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -42,17 +41,15 @@ class FavoriteViewModel @Inject constructor(
                 result = images.filter { item -> item.breedId.contains(filter) },
             )
         }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = FavoriteViewContent(),
-            )
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = FavoriteViewContent(),
+        )
 
 
-    fun updateImageFavoriteById(id: String, newIsFavorite: Boolean) {
+    fun updateImageFavoriteByUrl(url: String, newIsFavorite: Boolean) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                imageDataSource.updateImageFavoriteById(id, newIsFavorite)
-            }
+            imageRepository.updateImageFavoriteByUrl(url, newIsFavorite)
         }
     }
 
@@ -61,7 +58,8 @@ class FavoriteViewModel @Inject constructor(
             savedStateHandle[currentFilterFlow] = filter
         }
     }
-    companion object{
+
+    companion object {
         const val currentFilterFlow = "current_filter_flow"
     }
 }

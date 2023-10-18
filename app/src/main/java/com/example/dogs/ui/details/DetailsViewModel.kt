@@ -3,11 +3,11 @@ package com.example.dogs.ui.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dogs.data.ImageRepository
 import com.example.dogs.data.network.model.NetworkResponse
 import com.example.dogs.data.network.model.NetworkResult
 import com.example.dogs.data.network.model.translateNetworkResponse
 import com.example.dogs.data.presentation.NetworkErrorPresentationModel
+import com.example.dogs.data.repository.ImageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,13 +23,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
-    private val imageDataSource: ImageRepository,
+    private val imageRepository: ImageRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val currentBreedId = savedStateHandle.getStateFlow(currentBreedIdFlow, "")
 
-    private val _images = imageDataSource.observeAllImages()
+    private val _images = imageRepository.observeAllImages()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -48,10 +48,10 @@ class DetailsViewModel @Inject constructor(
                 isRefreshing = false
             )
         }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = DetailsViewContent(),
-            )
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = DetailsViewContent(),
+        )
 
     var errorMessage = MutableSharedFlow<NetworkErrorPresentationModel>()
         private set
@@ -63,17 +63,15 @@ class DetailsViewModel @Inject constructor(
                     isRefreshing = true
                 )
             }
-            withContext(Dispatchers.IO) {
-                savedStateHandle[currentBreedIdFlow] = breedId
-                imageDataSource.downloadImagesByBreedId(currentBreedId.value).handleError()
-            }
+            savedStateHandle[currentBreedIdFlow] = breedId
+            imageRepository.downloadImagesByBreedId(currentBreedId.value).handleError()
         }
     }
 
-    fun updateImageFavoriteById(url: String, newIsFavorite: Boolean) {
+    fun updateImageFavoriteByUrl(url: String, newIsFavorite: Boolean) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                imageDataSource.updateImageFavoriteById(url, newIsFavorite)
+                imageRepository.updateImageFavoriteByUrl(url, newIsFavorite)
             }
         }
     }

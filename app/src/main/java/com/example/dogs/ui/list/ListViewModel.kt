@@ -3,14 +3,13 @@ package com.example.dogs.ui.list
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dogs.data.DogRepository
 import com.example.dogs.data.network.model.NetworkResponse
 import com.example.dogs.data.network.model.NetworkResult
 import com.example.dogs.data.network.model.translateNetworkResponse
 import com.example.dogs.data.presentation.DogPresentationModel
 import com.example.dogs.data.presentation.NetworkErrorPresentationModel
+import com.example.dogs.data.repository.DogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,18 +19,17 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
-    private val dataSource: DogRepository,
+    private val dogRepository: DogRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     val currentFilter = savedStateHandle.getStateFlow(currentFilterListFlow, "")
 
-    private val _dogs: StateFlow<List<DogPresentationModel>> = dataSource.observeAllBreeds()
+    private val _dogs: StateFlow<List<DogPresentationModel>> = dogRepository.observeAllBreeds()
         .onStart { refreshAllBreeds() }
         .stateIn(
             scope = viewModelScope,
@@ -45,7 +43,7 @@ class ListViewModel @Inject constructor(
         combine(
             _uiState,
             _dogs,
-            currentFilter,
+            currentFilter
         ) { state, list, filter ->
             state.copy(
                 result = list.filter { item -> item.breedId.contains(filter) },
@@ -63,9 +61,7 @@ class ListViewModel @Inject constructor(
                     isRefreshing = true
                 )
             }
-            withContext(Dispatchers.IO) {
-                dataSource.downloadAllBreeds().handleError()
-            }
+            dogRepository.downloadAllBreeds().handleError()
         }
     }
 

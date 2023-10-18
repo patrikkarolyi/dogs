@@ -1,4 +1,4 @@
-package com.example.dogs.data
+package com.example.dogs.data.repository
 
 import com.example.dogs.data.disk.DiskDataSource
 import com.example.dogs.data.disk.model.RoomBreedData
@@ -8,16 +8,18 @@ import com.example.dogs.data.network.model.AllBreedData
 import com.example.dogs.data.network.model.NetworkResponse
 import com.example.dogs.data.network.model.NetworkResult
 import com.example.dogs.data.presentation.DogPresentationModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class DogRepository @Inject constructor(
+class DefaultDogRepository @Inject constructor(
     private val networkDataSource: NetworkDataSource,
     private val diskDataSource: DiskDataSource,
-) {
+) : DogRepository {
 
-    fun observeAllBreeds(): Flow<List<DogPresentationModel>> {
+    override fun observeAllBreeds(): Flow<List<DogPresentationModel>> {
         return diskDataSource.getAllBreeds()
             .map { list ->
                 list.map { roomItem ->
@@ -29,15 +31,16 @@ class DogRepository @Inject constructor(
             }
     }
 
-    suspend fun downloadAllBreeds(): NetworkResponse<AllBreedData> {
-        return when (val networkResponse = networkDataSource.getAllBreeds()) {
-            is NetworkResult -> {
-                diskDataSource.insertBreeds(mapBreedsNetworkToRoom(networkResponse.result.message))
-                networkResponse
+    override suspend fun downloadAllBreeds(): NetworkResponse<AllBreedData> =
+        withContext(Dispatchers.IO) {
+            when (val networkResponse = networkDataSource.getAllBreeds()) {
+                is NetworkResult -> {
+                    diskDataSource.insertBreeds(mapBreedsNetworkToRoom(networkResponse.result.message))
+                    networkResponse
+                }
+                else -> networkResponse
             }
-            else -> networkResponse
         }
-    }
 
     private fun mapBreedsNetworkToRoom(map: Map<String, List<String>>): List<RoomBreedData> {
         val result = mutableListOf<RoomBreedData>()

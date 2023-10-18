@@ -79,7 +79,7 @@ fun FavoriteScreen(
                 ImageListContent(
                     newItems = viewState.result,
                     onItemFavoriteClicked = { url, isFavorite ->
-                        viewModel.updateImageFavoriteById(url, isFavorite)
+                        viewModel.updateImageFavoriteByUrl(url, isFavorite)
                     }
                 )
             }
