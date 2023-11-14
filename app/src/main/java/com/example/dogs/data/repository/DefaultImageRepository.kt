@@ -43,8 +43,8 @@ class DefaultImageRepository @Inject constructor(
 
     override fun observeAllImages(): Flow<List<ImagePresentationModel>> {
         return combine(
-            diskDataSource.getAllImages(),
-            diskDataSource.getAllBreeds()
+            diskDataSource.observeAllImages(),
+            diskDataSource.observeAllBreeds()
         ) { images, dogs ->
             images.map { roomItem ->
                 ImagePresentationModel(
@@ -62,7 +62,7 @@ class DefaultImageRepository @Inject constructor(
     override fun observeAllFavoriteImages(): Flow<List<ImagePresentationModel>> {
         return combine(
             diskDataSource.getAllFavoriteImages(),
-            diskDataSource.getAllBreeds()
+            diskDataSource.observeAllBreeds()
         ) { images, dogs ->
             images.map { roomItem ->
                 ImagePresentationModel(
@@ -77,9 +77,22 @@ class DefaultImageRepository @Inject constructor(
         }
     }
 
+    override suspend fun getRandomImageByBreedId(breedId: String): ImagePresentationModel =
+        withContext(Dispatchers.IO) {
+            val roomItem = diskDataSource.getImagesByBreedId(breedId).random()
+
+            ImagePresentationModel(
+                url = roomItem.url,
+                breedId = roomItem.breedId,
+                fullName = "",
+                isFavorite = true
+            )
+        }
+
+
     override suspend fun updateImageFavoriteByUrl(url: String, newIsFavorite: Boolean) =
         withContext(Dispatchers.IO) {
-            val imageItem = diskDataSource.getImageById(url)
+            val imageItem = diskDataSource.getImageByUrl(url)
             diskDataSource.updateBreed(
                 RoomImageData(
                     url = imageItem.url,

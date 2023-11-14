@@ -3,7 +3,6 @@ package com.example.dogs.ui.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dogs.data.network.model.NetworkResponse
 import com.example.dogs.data.network.model.NetworkResult
 import com.example.dogs.data.network.model.translateNetworkResponse
 import com.example.dogs.data.presentation.NetworkErrorPresentationModel
@@ -29,18 +28,11 @@ class DetailsViewModel @Inject constructor(
 
     private val currentBreedId = savedStateHandle.getStateFlow(currentBreedIdFlow, "")
 
-    private val _images = imageRepository.observeAllImages()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList(),
-        )
-
     private val _uiState = MutableStateFlow(DetailsViewContent())
     val uiState: StateFlow<DetailsViewContent> =
         combine(
             _uiState,
-            _images,
+            imageRepository.observeAllImages(),
             currentBreedId
         ) { state, images, breedId ->
             state.copy(
@@ -64,7 +56,11 @@ class DetailsViewModel @Inject constructor(
                 )
             }
             savedStateHandle[currentBreedIdFlow] = breedId
-            imageRepository.downloadImagesByBreedId(currentBreedId.value).handleError()
+            imageRepository.downloadImagesByBreedId(currentBreedId.value).let { result ->
+                if (result !is NetworkResult) {
+                    errorMessage.emit(result.translateNetworkResponse())
+                }
+            }
         }
     }
 
@@ -72,16 +68,6 @@ class DetailsViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 imageRepository.updateImageFavoriteByUrl(url, newIsFavorite)
-            }
-        }
-    }
-
-    private fun NetworkResponse<*>.handleError() {
-        if (this !is NetworkResult) {
-            viewModelScope.launch {
-                errorMessage.emit(
-                    this@handleError.translateNetworkResponse()
-                )
             }
         }
     }

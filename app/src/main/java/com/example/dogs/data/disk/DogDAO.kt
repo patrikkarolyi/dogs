@@ -8,11 +8,14 @@ import kotlinx.coroutines.flow.Flow
 interface DogDAO {
 
     @Query("SELECT * FROM breeds")
-    fun getAllBreeds(): Flow<List<RoomBreedData>>
+    fun observeAllBreeds(): Flow<List<RoomBreedData>>
+
+    @Query("SELECT * FROM breeds")
+    suspend fun getAllBreeds(): List<RoomBreedData>
 
     @Query("SELECT * FROM breeds WHERE id=:id")
-    fun getBreedById(id: String): RoomBreedData
+    suspend fun getBreedById(id: String): RoomBreedData
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertBreeds(breeds: List<RoomBreedData>)
+    suspend fun insertBreeds(breeds: List<RoomBreedData>)
 }

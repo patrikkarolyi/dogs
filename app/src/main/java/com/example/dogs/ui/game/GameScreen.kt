@@ -1,16 +1,16 @@
-package com.example.dogs.ui.list
+package com.example.dogs.ui.game
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,51 +29,45 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.dogs.data.presentation.DogPresentationModel
+import com.example.dogs.R
 import com.example.dogs.data.presentation.NetworkErrorPresentationModel
-import com.example.dogs.navigation.Screen
-import com.example.dogs.ui.common.ListContent
 import com.example.dogs.ui.common.NavDrawer
-import com.example.dogs.ui.common.SearchBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ListScreen(
-    viewModel: ListViewModel = hiltViewModel(),
+fun GameScreen(
+    viewModel: GameViewModel = hiltViewModel(),
     navController: NavController,
 ) {
-    val viewState by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
     val error by viewModel.errorMessage.collectAsState(initial = null)
 
-    ListScreen(
-        navController = navController,
+    GameScreen(
+        state = state,
         error = error,
-        newItems = viewState.result,
-        isRefreshing = viewState.isRefreshing,
-        onRefreshTriggered = viewModel::refreshAllBreeds,
-        onSearchTriggered = viewModel::updateFilters,
+        navController = navController,
+        onAnswerClicked = viewModel::submitAnswer,
+        onResetClicked = viewModel::resetQuestion
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ListScreen(
-    navController: NavController,
+fun GameScreen(
+    state: GameViewState,
     error: NetworkErrorPresentationModel?,
-    newItems: List<DogPresentationModel> = emptyList(),
-    isRefreshing: Boolean = false,
-    onRefreshTriggered: () -> Unit,
-    onSearchTriggered: (String) -> Unit,
+    navController: NavController,
+    onAnswerClicked: (String) -> Boolean,
+    onResetClicked: () -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefreshTriggered)
-    val context = LocalContext.current
-    val sbHostState = remember { SnackbarHostState() }
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
+    val sbHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(error) {
         error?.let {
@@ -93,8 +88,9 @@ fun ListScreen(
             snackbarHost = { SnackbarHost(sbHostState) },
             topBar = {
                 Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     IconButton(
                         onClick = {
@@ -111,27 +107,43 @@ fun ListScreen(
                             contentDescription = "Menu"
                         )
                     }
-                    SearchBar(
-                        onSearchTriggered = onSearchTriggered,
-                    )
                 }
-            }
+            },
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-                    .pullRefresh(pullRefreshState)
-            ) {
-                ListContent(newItems) { breedId, fullName ->
-                    navController.navigate(Screen.DetailsScreen.withArgs(breedId, fullName))
+            when(state){
+                GameViewState.Loading ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Text(text = "Loading ...", modifier = Modifier.align(Alignment.Center))
                 }
-                PullRefreshIndicator(
-                    refreshing = isRefreshing,
-                    state = pullRefreshState,
-                    modifier = Modifier.align(Alignment.TopCenter)
-                )
+
+                is GameViewState.GameViewContent ->
+                    Column(
+                        modifier = Modifier
+                            .padding(it),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text(text = "Guess which dog is on the picture!")
+                        GameAnswerList(
+                            content = state,
+                            onAnswerClicked = onAnswerClicked
+                        )
+                        Box(
+                            modifier = Modifier.fillMaxHeight()
+                        ) {
+                            Button(
+                                onClick = onResetClicked,
+                                modifier = Modifier.align(Alignment.BottomCenter)) {
+                                Text(text = stringResource(R.string.reset))
+                            }
+                        }
+                    }
+
             }
         }
     }
 }
+
+
+
+

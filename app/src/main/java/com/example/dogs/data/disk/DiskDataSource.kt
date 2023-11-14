@@ -10,35 +10,47 @@ class DiskDataSource @Inject constructor(
     private val imageDAO: ImageDAO
 ) {
 
-    fun getAllBreeds(): Flow<List<RoomBreedData>> {
+    fun observeAllBreeds(): Flow<List<RoomBreedData>> {
+        return dogsDAO.observeAllBreeds()
+    }
+
+    suspend fun getAllBreeds(): List<RoomBreedData> {
         return dogsDAO.getAllBreeds()
     }
 
-    fun getBreedById(id: String): RoomBreedData {
+    suspend fun getBreedById(id: String): RoomBreedData {
         return dogsDAO.getBreedById(id)
     }
 
-    fun insertBreeds(data: List<RoomBreedData>) {
+    suspend fun insertBreeds(data: List<RoomBreedData>) {
         return dogsDAO.insertBreeds(data)
     }
 
-    fun getAllImages(): Flow<List<RoomImageData>> {
+    fun observeAllImages(): Flow<List<RoomImageData>> {
+        return imageDAO.observeAllImages()
+    }
+
+    suspend fun getAllImages(): List<RoomImageData> {
         return imageDAO.getAllImages()
     }
 
     fun getAllFavoriteImages(): Flow<List<RoomImageData>> {
-        return imageDAO.getAllFavoriteImages()
+        return imageDAO.observeAllFavoriteImages()
     }
 
-    fun getImageById(id: String): RoomImageData {
-        return imageDAO.getImageById(id)
+    suspend fun getImagesByBreedId(breedId: String): List<RoomImageData> {
+        return imageDAO.getImagesByBreedId(breedId)
     }
 
-    fun insertImagesObject(images: List<RoomImageData>){
+    suspend fun getImageByUrl(id: String): RoomImageData {
+        return imageDAO.getImageByUrl(id)
+    }
+
+    suspend fun insertImagesObject(images: List<RoomImageData>){
         return imageDAO.insertImages(images)
     }
 
-    fun updateBreed(data: RoomImageData) {
+    suspend fun updateBreed(data: RoomImageData) {
         return imageDAO.updateImage(data)
     }
 }

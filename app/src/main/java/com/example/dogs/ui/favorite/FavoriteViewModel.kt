@@ -19,22 +19,13 @@ class FavoriteViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val currentFilter = savedStateHandle.getStateFlow(currentFilterFlow, "")
-
-
-    private val _images = imageRepository.observeAllFavoriteImages()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList(),
-        )
-
+    private val currentFilter = savedStateHandle.getStateFlow(currentFilterFlow, "")
 
     private val _uiState = MutableStateFlow(FavoriteViewContent())
     val uiState: StateFlow<FavoriteViewContent> =
         combine(
             _uiState,
-            _images,
+            imageRepository.observeAllFavoriteImages(),
             currentFilter
         ) { state, images, filter ->
             state.copy(

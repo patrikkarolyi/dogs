@@ -20,7 +20,7 @@ class DefaultDogRepository @Inject constructor(
 ) : DogRepository {
 
     override fun observeAllBreeds(): Flow<List<DogPresentationModel>> {
-        return diskDataSource.getAllBreeds()
+        return diskDataSource.observeAllBreeds()
             .map { list ->
                 list.map { roomItem ->
                     DogPresentationModel(
@@ -29,6 +29,15 @@ class DefaultDogRepository @Inject constructor(
                     )
                 }
             }
+    }
+
+    override suspend fun getAllBreeds(): List<DogPresentationModel> {
+        return diskDataSource.getAllBreeds().map { roomItem ->
+            DogPresentationModel(
+                breedId = roomItem.id,
+                fullName = roomItem.fullName(),
+            )
+        }
     }
 
     override suspend fun downloadAllBreeds(): NetworkResponse<AllBreedData> =

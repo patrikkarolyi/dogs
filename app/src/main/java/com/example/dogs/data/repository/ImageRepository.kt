@@ -10,5 +10,6 @@ interface ImageRepository {
     suspend fun downloadImagesByBreedId(id: String): NetworkResponse<ImagesData>
     fun observeAllImages(): Flow<List<ImagePresentationModel>>
     fun observeAllFavoriteImages(): Flow<List<ImagePresentationModel>>
+    suspend fun getRandomImageByBreedId(breedId: String): ImagePresentationModel
     suspend fun updateImageFavoriteByUrl(url: String, newIsFavorite: Boolean)
 }

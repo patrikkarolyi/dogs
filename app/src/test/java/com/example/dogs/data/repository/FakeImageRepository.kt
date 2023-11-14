@@ -29,6 +29,16 @@ class FakeImageRepository : ImageRepository {
         return favoriteImages
     }
 
+    override suspend fun getRandomImageByBreedId(breedId: String): ImagePresentationModel {
+        //TODO
+        return ImagePresentationModel(
+            url = "",
+            breedId = "",
+            fullName = "",
+            isFavorite = true
+        )
+    }
+
     override suspend fun updateImageFavoriteByUrl(url: String, newIsFavorite: Boolean) {
         images.emit(
             imageTestData.map { item ->

@@ -10,6 +10,8 @@
     <string name="all">All</string>
     <string name="no_content">No content.</string>
     <string name="no_internet_connection">No internet connection!</string>
-    <string name="http_error">HTTP error:</string>
+    <string name="http_error">HTTP error: %d</string>
     <string name="unknown_error">Unknown error!</string>
+    <string name="game">Game</string>
+    <string name="reset">Reset</string>
 </resources>

@@ -8,20 +8,23 @@ import kotlinx.coroutines.flow.Flow
 interface ImageDAO {
 
     @Query("SELECT * FROM images")
-    fun getAllImages(): Flow<List<RoomImageData>>
+    fun observeAllImages(): Flow<List<RoomImageData>>
+
+    @Query("SELECT * FROM images")
+    suspend fun getAllImages(): List<RoomImageData>
 
     @Query("SELECT * FROM images WHERE isFavorite=1")
-    fun getAllFavoriteImages(): Flow<List<RoomImageData>>
+    fun observeAllFavoriteImages(): Flow<List<RoomImageData>>
 
     @Query("SELECT * FROM images WHERE breedId=:breedId")
-    fun getImagesByBreedId(breedId: String):  List<RoomImageData>
+    suspend fun getImagesByBreedId(breedId: String):  List<RoomImageData>
 
     @Query("SELECT * FROM images WHERE url=:url")
-    fun getImageById(url: String): RoomImageData
+    suspend fun getImageByUrl(url: String): RoomImageData
 
     @Upsert
-    fun insertImages(images: List<RoomImageData>)
+    suspend fun insertImages(images: List<RoomImageData>)
 
     @Update()
-    fun updateImage(breed: RoomImageData)
+    suspend fun updateImage(breed: RoomImageData)
 }

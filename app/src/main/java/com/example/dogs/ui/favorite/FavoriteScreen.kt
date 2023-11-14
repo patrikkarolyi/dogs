@@ -50,8 +50,8 @@ fun FavoriteScreen(
     onSearchTriggered: (String) -> Unit,
     onItemFavoriteClicked: (String, Boolean) -> Unit
 ) {
-    val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
 
     NavDrawer(
         drawerState = drawerState,

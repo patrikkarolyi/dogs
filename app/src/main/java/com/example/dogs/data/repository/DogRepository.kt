@@ -7,5 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface DogRepository {
     fun observeAllBreeds(): Flow<List<DogPresentationModel>>
+
+    suspend fun getAllBreeds(): List<DogPresentationModel>
     suspend fun downloadAllBreeds(): NetworkResponse<AllBreedData>
 }

@@ -85,7 +85,7 @@ fun DetailsScreen(
         error?.let {
             coroutineScope.launch {
                 sbHostState.showSnackbar(
-                    error.getStringMessage(context)
+                    error.message.asString(context)
                 )
             }
         }

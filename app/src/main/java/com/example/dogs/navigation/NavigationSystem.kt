@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.dogs.ui.details.DetailsScreen
 import com.example.dogs.ui.favorite.FavoriteScreen
+import com.example.dogs.ui.game.GameScreen
 import com.example.dogs.ui.list.ListScreen
 
 @Composable
@@ -47,6 +48,12 @@ fun NavigationSystem() {
 
         composable(route = Screen.FavoriteScreen.route){
             FavoriteScreen(
+                navController = navController,
+            )
+        }
+
+        composable(route = Screen.GameScreen.route){
+            GameScreen(
                 navController = navController,
             )
         }
