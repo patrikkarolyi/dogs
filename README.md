@@ -14,7 +14,7 @@ An app that uses the [Dog Breeds API](https://dog.ceo/dog-api) to allow users to
 
 ### 🖼️ Screenshots
 
-![sample_screens](https://github.com/patrikkarolyi/dogs/assets/25804258/f94e40be-5706-430c-a0ec-2901055df82a)
+![sample_dogs](https://github.com/patrikkarolyi/dogs/assets/25804258/9eedd977-e392-493e-92f5-d9104ec94020)
 
 ### 📽️ Video
 
